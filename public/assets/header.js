@@ -1,0 +1,24 @@
+
+const p = document.getElementById('texto');
+
+const letras = p.textContent.split('');
+p.textContent = '';
+
+const spans = letras.map(letra => {
+    const span = document.createElement('span');
+    span.textContent = letra;
+    p.appendChild(span);
+    return span;
+})
+let indiceActual = 0;
+const colorActivo = '#d16a16ff'
+const colorInactivo = '#555'
+
+setInterval(() => {
+    spans.forEach(span => span.style.color = colorInactivo);
+
+    spans[indiceActual].style.color = colorActivo;
+
+    indiceActual++;
+    if (indiceActual >= spans.length) indiceActual = 0;
+},500);
