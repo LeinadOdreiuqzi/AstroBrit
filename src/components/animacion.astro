@@ -13,18 +13,6 @@
     <div id="hero-key" class="hero-content"></div>
   </section>
 </div>
-
-<!-- Nueva etiqueta main separada para la segunda timeline (evita conflictos) -->
-<main>
-  <!-- Aquí va el contenido que antes estaba dentro de #main-content para la segunda timeline -->
-  <header class="header"></header>
-  <div class="logo-text"></div>
-  <div class="main-content">
-    <h1>Title</h1>
-    <p>Paragraph</p>
-  </div>
-</main>
-
 <!-- Capa de máscara -->
 <div id="logo-mask"></div>
 
@@ -351,7 +339,7 @@
         trigger: "#main-content",
         start: "top top",
         end: "bottom bottom",
-        scrub: 0.5,
+        scrub: 2.5,
         onUpdate: (self) => {
           const progress = self.progress;
           const frameSectionProgress = Math.min(progress / 0.7, 1);
@@ -398,6 +386,7 @@
                 if (frame) frame.style.display = "none";
               });
               window.activateSecondTimeline(); // Activar la segunda timeline aquí
+              gsap.set("#logo-mask", { opacity: 0 }); // Ocultar la máscara al salir de la animación principal
             },
           });
 
@@ -420,9 +409,11 @@
             gsap.to(header, {
               opacity: 0,
               visibility: "hidden",
-              duration: 0.5,
+              duration: 0.8,
             });
           }
+          // Asegurarse de que la máscara vuelva a ser visible al hacer scroll hacia arriba
+          gsap.set("#logo-mask", { opacity: 1 });
         },
         onLeaveBack: () => {
           // Restaurar el estado inicial de la primera animación
