@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Skin from '../components/skin.astro';
+
+const mySkins = [
+  {
+    id: "my_first_skin",
+    skinPath: "/assets/OmsijepseBritannico.png",
+    animation: "CrouchAnimation",
+    autoRotate: false,
+    cameraLightIntensity: 2.0,
+    globalLightIntensity: 2.5,
+    cameraPositionX: 0,
+    cameraPositionY: 15,
+    cameraPositionZ: 60,
+    cameraLookAtX: 0,
+    cameraLookAtY: 10,
+    cameraLookAtZ: 0,
+  },
+  {
+    id: "my_first_skin2",
+    skinPath: "/assets/Bondio.png",
+    animation: "FlyingAnimation",
+    autoRotate: false,
+    cameraLightIntensity: 2.0,
+    globalLightIntensity: 2.5,
+    cameraPositionX: 0,
+    cameraPositionY: 15,
+    cameraPositionZ: 60,
+    cameraLookAtX: 0,
+    cameraLookAtY: 10,
+    cameraLookAtZ: 0,
+  },
+  {
+    id: "my_first_skin3",
+    skinPath: "/assets/papita.png",
+    animation: "CrouchAnimation",
+    autoRotate: false,
+    cameraLightIntensity: 2.0,
+    globalLightIntensity: 2.5,
+    cameraPositionX: 0,
+    cameraPositionY: 15,
+    cameraPositionZ: 60,
+    cameraLookAtX: 0,
+    cameraLookAtY: 10,
+    cameraLookAtZ: 0,
+  },
+  {
+    id: "my_first_skin4",
+    skinPath: "/assets/paco.png",
+    animation: "FlyingAnimation",
+    autoRotate: false,
+    cameraLightIntensity: 2.0,
+    globalLightIntensity: 2.5,
+    cameraPositionX: 0,
+    cameraPositionY: 15,
+    cameraPositionZ: 60,
+    cameraLookAtX: 0,
+    cameraLookAtY: 10,
+    cameraLookAtZ: 0,
+  },
+  {
+    id: "my_first_skin5",
+    skinPath: "/assets/Xuchuwu.png",
+    animation: "CrouchAnimation",
+    autoRotate: false,
+    cameraLightIntensity: 2.0,
+    globalLightIntensity: 2.5,
+    cameraPositionX: 0,
+    cameraPositionY: 15,
+    cameraPositionZ: 60,
+    cameraLookAtX: 0,
+    cameraLookAtY: 10,
+    cameraLookAtZ: 0,
+  },
+];
+---
+
+<Layout>
+  <main>
+    <header>
+      <div class="logo-text"></div>
+    </header>
+    <div class="main-content">
+      <h1>Title</h1>
+      <p>Paragraph</p>
+      <div class="skin-component">
+        <Skin skinsToDisplay={mySkins} />
+      </div>
+    </div>
+  </main>
+</Layout>

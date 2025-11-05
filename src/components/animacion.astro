@@ -183,9 +183,7 @@
 
     const secondTimelineContent = document.querySelector("main");
     const logoMask = document.querySelector("#logo-mask");
-    const header = document.querySelector("main .header");
     const logoText = document.querySelector("main .logo-text");
-    const mainContent = document.querySelector("main .main-content");
     const title = document.querySelector("main .main-content h1");
     const paragraph = document.querySelector("main .main-content p");
 
@@ -202,108 +200,62 @@
     // 1. Ocultar logo-mask rápidamente
     entryTimeline.to(logoMask, {
       opacity: 0,
-      duration: 1.5,
+      duration: 0.8,
       ease: "power3.inOut",
     });
 
-    // 2. Preparar el contenedor
+    // 2. Preparar el contenedor principal y sus elementos para la animación
     entryTimeline.set(secondTimelineContent, {
       pointerEvents: "auto",
       zIndex: 100,
+      opacity: 1, // Asegurar que el contenedor principal sea visible
+      x: "0%",
+      scale: 1,
+      rotationY: 0,
     });
 
-    // 3. Animación principal de entrada - slide desde la derecha con rotación
-    entryTimeline.to(
-      secondTimelineContent,
-      {
-        x: "0%",
-        scale: 1,
-        rotationY: 0,
-        opacity: 1,
-        duration: 0.6,
-        ease: "power3.out",
-      },
-      "<0.1",
-    );
-
-    // 4. Header entra desde arriba rápidamente
-    if (header && logoText) {
-      entryTimeline.fromTo(
-        header,
-        {
-          y: -60,
-          opacity: 0,
-          scale: 0.8,
-        },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          ease: "back.out(2)",
-        },
-        "<0.2",
-      );
+    // Establecer estados iniciales para los elementos individuales
+    if (logoText) {
+      gsap.set(logoText, { opacity: 0, y: 20 });
     }
-
-    // 5. Título entra desde la derecha
     if (title) {
-      entryTimeline.fromTo(
-        title,
-        {
-          x: 80,
-          y: 30,
-          opacity: 0,
-          scale: 0.7,
-          rotation: 5,
-        },
-        {
-          x: 0,
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          rotation: 0,
-          duration: 0.6,
-          ease: "back.out(1.8)",
-        },
-        "<0.1",
-      );
+      gsap.set(title, { opacity: 0, y: 30 });
     }
-
-    // 6. Párrafo entra desde abajo con slide
     if (paragraph) {
-      entryTimeline.fromTo(
-        paragraph,
-        {
-          y: 50,
-          x: -30,
-          opacity: 0,
-          scale: 0.9,
-        },
-        {
-          y: 0,
-          x: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          ease: "power3.out",
-        },
-        "<0.15",
-      );
+      gsap.set(paragraph, { opacity: 0, y: 40 });
+    }
+    if (document.querySelector("main .main-content skin-component")) { // Targeting the rendered Skin component
+      gsap.set("main .main-content skin-component", { opacity: 0, scale: 0.8 });
     }
 
-    // 7. Efecto final sutil en el título
-    entryTimeline.to(
-      title,
-      {
-        scale: 1.03,
-        duration: 0.2,
-        ease: "power2.inOut",
-        yoyo: true,
-        repeat: 1,
-      },
-      "<0.3",
-    );
+    // 3. Animación de entrada de los bloques
+    entryTimeline.to(logoText, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: "power3.out",
+    }, "<0.2");
+
+    entryTimeline.to(title, {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: "power3.out",
+    }, "<0.1");
+
+    entryTimeline.to(paragraph, {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: "power3.out",
+    }, "<0.1");
+
+    entryTimeline.to("main .main-content skin-component", {
+      opacity: 1,
+      scale: 1,
+      duration: 0.8,
+      ease: "back.out(1.2)",
+    }, "<0.15");
 
     console.log("Segunda timeline activada completamente");
   };

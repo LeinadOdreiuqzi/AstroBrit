@@ -1,0 +1,78 @@
+---
+interface SkinConfig {
+  id: string;
+  skinPath: string;
+  animation?: any;
+  autoRotate?: boolean;
+  cameraLightIntensity?: number;
+  globalLightIntensity?: number;
+  cameraPositionX?: number;
+  cameraPositionY?: number;
+  cameraPositionZ?: number;
+  cameraLookAtX?: number;
+  cameraLookAtY?: number;
+  cameraLookAtZ?: number;
+}
+
+interface Props {
+  skinsToDisplay: SkinConfig[];
+}
+
+const { skinsToDisplay = [] } = Astro.props;
+---
+
+<div class="skin-viewers-container">
+  {skinsToDisplay.map((skin) => (
+    <canvas id={skin.id} style="pointer-events: none;"></canvas>
+  ))}
+</div>
+
+<script
+  is:inline
+  src="https://cdn.jsdelivr.net/npm/skinview3d/bundles/skinview3d.bundle.js"
+></script>
+<script define:vars={{ skinsToDisplay }}>
+  /*
+    - skinview3d.IdleAnimation() : Animación de inactividad.
+    - skinview3d.WalkingAnimation() : Animación de caminar.
+    - skinview3d.RunningAnimation() : Animación de correr.
+    - skinview3d.FlyingAnimation() : Animación de volar.
+    - skinview3d.WaveAnimation() : Animación de saludar.
+    - skinview3d.CrouchAnimation() : Animación de agacharse.
+    - skinview3d.HitAnimation() : Animación de ser golpeado.
+    */
+  skinsToDisplay.forEach((skinConfig) => {
+    const canvasElement = document.getElementById(skinConfig.id);
+    if (canvasElement) {
+      const skinViewer = new skinview3d.SkinViewer({
+        canvas: canvasElement,
+        width: 200,
+        height: 300,
+        skin: skinConfig.skinPath,
+      });
+
+      skinViewer.animation = skinConfig.animation ? new skinview3d[skinConfig.animation]() : new skinview3d.IdleAnimation();
+      skinViewer.autoRotate = skinConfig.autoRotate !== undefined ? skinConfig.autoRotate : true;
+      skinViewer.cameraLight.intensity = skinConfig.cameraLightIntensity !== undefined ? skinConfig.cameraLightIntensity : 1.9;
+      skinViewer.globalLight.intensity = skinConfig.globalLightIntensity !== undefined ? skinConfig.globalLightIntensity : 2.4;
+      skinViewer.camera.position.set(
+        skinConfig.cameraPositionX !== undefined ? skinConfig.cameraPositionX : 0,
+        skinConfig.cameraPositionY !== undefined ? skinConfig.cameraPositionY : 15,
+        skinConfig.cameraPositionZ !== undefined ? skinConfig.cameraPositionZ : 60
+      );
+      skinViewer.camera.lookAt(
+        skinConfig.cameraLookAtX !== undefined ? skinConfig.cameraLookAtX : 0,
+        skinConfig.cameraLookAtY !== undefined ? skinConfig.cameraLookAtY : 10,
+        skinConfig.cameraLookAtZ !== undefined ? skinConfig.cameraLookAtZ : 0
+      );
+
+      console.log(
+        `skinViewer para ${skinConfig.id} inicializado con ${skinViewer.animation.constructor.name}.`,
+      );
+    } else {
+      console.error(
+        `No se encontró el elemento canvas con id: ${skinConfig.id}`,
+      );
+    }
+  });
+</script>
