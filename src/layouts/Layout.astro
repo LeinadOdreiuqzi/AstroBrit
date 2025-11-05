@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -7,6 +7,13 @@
 		<meta name="generator" content={Astro.generator} />
 		<link rel="stylesheet" href="/assets/styles.css" />
 		<title>BritanniaMC</title>
+		<script>
+			import gsap from 'gsap';
+			import { ScrollTrigger } from 'gsap/ScrollTrigger';
+			window.gsap = gsap;
+			(window as any).ScrollTrigger = ScrollTrigger;
+			gsap.registerPlugin(ScrollTrigger);
+		</script>
 	</head>
 	<body>
 		<slot />

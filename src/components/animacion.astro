@@ -33,17 +33,23 @@
   </svg>
 </div>
 
-<!-- Cargar GSAP y ScrollTrigger antes del script principal -->
-<script
-  is:inline
-  src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script
-  is:inline
-  src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"
-></script>
+<!-- GSAP y ScrollTrigger se cargan globalmente desde Layout.astro -->
 <script is:inline>
-  // GSAP y ScrollTrigger ya están disponibles globalmente desde los CDN
-  gsap.registerPlugin(ScrollTrigger);
+  function waitForGSAP(timeout = 5000) {
+    const start = Date.now();
+    return new Promise((resolve) => {
+      (function check() {
+        if (window.gsap && window.ScrollTrigger) {
+          try { window.gsap.registerPlugin(window.ScrollTrigger); } catch {}
+          resolve();
+        } else if (Date.now() - start < timeout) {
+          setTimeout(check, 50);
+        } else {
+          resolve(); // continuar sin bloquear si tarda demasiado
+        }
+      })();
+    });
+  }
 
   // Cargar y configurar la animación de frames
   const framesContainer = document.getElementById("frames-animation");
@@ -272,15 +278,20 @@
       frames[0].style.opacity = "1";
     }
 
+    // Esperar GSAP/ScrollTrigger si aún no está listo
+    await waitForGSAP();
+
     // Forzar que ScrollTrigger se calcule y active
-    ScrollTrigger.refresh();
+    if (window.ScrollTrigger) {
+      window.ScrollTrigger.refresh();
+    }
 
-    // Forzar render inmediato del primer frame
-    gsap.set("#frames-animation", { opacity: 1, immediateRender: true });
-    showFrame(0);
-
-    // Configurar la animación principal después de cargar los frames
-    setupMainAnimation();
+    // Forzar render inmediato del primer frame y configurar animación principal
+    if (window.gsap) {
+      window.gsap.set("#frames-animation", { opacity: 1, immediateRender: true });
+      showFrame(0);
+      setupMainAnimation();
+    }
   });
 
   function setupMainAnimation() {
@@ -437,11 +448,15 @@
   }
 
   // Animaciones adicionales (mantener solo las que no son repetitivas)
-  gsap.to(".keep-scrolling", {
-    y: -5,
-    duration: 1,
-    repeat: -1,
-    yoyo: true,
-    ease: "power2.inOut",
+  waitForGSAP().then(() => {
+    if (window.gsap) {
+      window.gsap.to(".keep-scrolling", {
+        y: -5,
+        duration: 1,
+        repeat: -1,
+        yoyo: true,
+        ease: "power2.inOut",
+      });
+    }
   });
 </script>
