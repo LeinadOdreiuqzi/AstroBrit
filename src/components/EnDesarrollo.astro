@@ -1,0 +1,55 @@
+---
+import Skin from "../components/skin.astro";
+
+const mySkins = [
+  {
+    id: "omsijepse_skin",
+    skinPath: "/assets/OmsijepseBritannico.png",
+    animation: "CrouchAnimation",
+    autoRotate: false,
+    cameraLightIntensity: 2.0,
+    globalLightIntensity: 2.5,
+    cameraPositionX: 0,
+    cameraPositionY: 15,
+    cameraPositionZ: 60,
+    cameraLookAtX: 0,
+    cameraLookAtY: 10,
+    cameraLookAtZ: 0,
+  },
+];
+---
+
+<section class="en-desarrollo">
+  <h2>En desarrollo...</h2>
+  <div class="skin-box">
+    <Skin skinsToDisplay={mySkins} />
+  </div>
+</section>
+
+<style>
+  .en-desarrollo {
+    position: relative;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+  }
+  .en-desarrollo h2 {
+    font-size: 2rem;
+    color: #ff6b00;
+    text-shadow: 0 0 10px rgba(255,107,0,0.4);
+  }
+  .skin-box {
+    width: 360px;
+    height: 360px;
+    max-width: 90vw;
+    max-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>

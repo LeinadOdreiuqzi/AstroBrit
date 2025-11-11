@@ -1,62 +1,64 @@
-body {
-    background-color: black;
-    font-family: 'Courier New', monospace;
-    text-align: center;
-    margin-top: 100px;
-}
-
-
 #texto span {
-    font-size: 32px;
-    text-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
-    transition: color 0.2s linear;
+  font-size: 32px;
+  text-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+  transition: color 0.2s linear;
 }
 
 .contenedor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    min-height: 100px;
-    width: 100%;
-    z-index: 100;
-    backdrop-filter: blur(2px);
-    background: rgba(0, 0, 0, 0.25);
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-height: 100px;
+  width: 100%;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .texto {
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    padding-left: 50px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100px;
-    margin: 0;
-    z-index: 101;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  padding-left: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100px;
+  margin: 0;
+  z-index: 101;
 }
 
 .contenido {
-    padding-left: 50px;
-    color: white;
+  padding-left: 50px;
+  color: white;
+  /* Añadir padding-top para compensar el header fijo */
+  padding-top: 100px;
 }
 
 @media (max-width: 768px) {
-    .contenedor {
-        height: 80px;
-    }
+  .contenedor {
+    height: 80px;
+  }
 
-    .texto {
-        font-size: 1.2rem;
-    }
+  .texto {
+    font-size: 1.2rem;
+  }
+
+  .contenido {
+    padding-top: 80px;
+  }
 }
 
 @media (max-width: 480px) {
-    .contenedor {
-        height: 60px;
-    }
+  .contenedor {
+    height: 60px;
+  }
 
-    .texto {
-        font-size: 1rem;
-    }
+  .texto {
+    font-size: 1rem;
+  }
+
+  .contenido {
+    padding-top: 60px;
+  }
 }

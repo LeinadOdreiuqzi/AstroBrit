@@ -1,0 +1,69 @@
+---
+---
+
+<footer>
+  <div class="footer-inner">
+    <p class="copy">© 2025 BritanniaMC.</p>
+    <a class="discord-badge" href="https://discord.gg/zcuwAhbWxR" target="_blank" rel="noopener noreferrer" aria-label="Discord">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M20.317 4.369A19.791 19.791 0 0 0 16.558 3c-.2.35-.434.82-.595 1.19a18.27 18.27 0 0 0-4.926 0A7.24 7.24 0 0 0 10.441 3a19.736 19.736 0 0 0-3.76 1.369C3.54 8.198 2.79 11.94 3.07 15.633a19.9 19.9 0 0 0 4.887 2.445c.395-.54.747-1.113 1.053-1.714-.578-.22-1.133-.49-1.66-.805.139-.1.275-.204.406-.313a13.87 13.87 0 0 0 10.488 0c.133.11.269.214.406.313-.527.315-1.082.585-1.66.805.306.601.658 1.175 1.053 1.714a19.9 19.9 0 0 0 4.887-2.445c.334-4.269-.57-7.98-2.624-11.264ZM9.86 13.856c-.995 0-1.807-.92-1.807-2.053 0-1.133.8-2.06 1.807-2.06 1.012 0 1.82.927 1.807 2.06 0 1.133-.795 2.053-1.807 2.053Zm4.292 0c-.995 0-1.807-.92-1.807-2.053 0-1.133.8-2.06 1.807-2.06 1.012 0 1.82.927 1.807 2.06 0 1.133-.8 2.053-1.807 2.053Z"/>
+      </svg>
+      <span>Únete al Discord</span>
+    </a>
+  </div>
+  
+</footer>
+
+<style>
+  footer {
+    background-color: #111111;
+    color: #fff;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.25rem 1rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+  }
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .copy {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+  }
+  .discord-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(88,101,242,0.25), rgba(88,101,242,0.12));
+    color: #e6e8ff;
+    border: 1px solid rgba(88, 101, 242, 0.45);
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  }
+  .discord-badge:hover {
+    background: linear-gradient(135deg, rgba(88,101,242,0.35), rgba(88,101,242,0.2));
+    border-color: rgba(88,101,242,0.65);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 26px rgba(88,101,242,0.25);
+  }
+  .discord-badge:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88,101,242,0.35);
+  }
+  @media (max-width: 640px) {
+    .footer-inner {
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+</style>

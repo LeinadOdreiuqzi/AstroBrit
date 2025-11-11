@@ -1,0 +1,28 @@
+---
+import Galeria from '../components/Galeria.astro';
+---
+<style>
+    /* Add padding-top to gallery section to prevent overlap with fixed header */
+.gallery-hero {
+  padding-top: 100px;
+}
+
+@media (max-width: 768px) {
+  .gallery-hero {
+    padding-top: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-hero {
+    padding-top: 60px;
+  }
+}
+
+</style>
+<section class="gallery-hero">
+  <div class="hero-content">
+    <p>cositas</p>
+  </div>
+    <Galeria variant="hero" />
+</section>

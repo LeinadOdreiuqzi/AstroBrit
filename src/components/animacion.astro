@@ -49,6 +49,11 @@
         }
       })();
     });
+
+    // Recalcular en resize para mantener recorrido coherente
+    window.addEventListener("resize", () => {
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+    });
   }
 
   // Cargar y configurar la animación de frames
@@ -152,7 +157,7 @@
         visibility: "visible",
         pointerEvents: "none",
       });
-      console.log("Segunda timeline inicializada y ocultada");
+      // console.log("Segunda timeline inicializada y ocultada");
     }
   }
 
@@ -179,13 +184,13 @@
   // Función para activar la segunda timeline con animaciones rápidas
   window.activateSecondTimeline = () => {
     if (firstTimelineComplete) {
-      console.log("Segunda timeline ya está activa, saltando...");
+      // console.log("Segunda timeline ya está activa, saltando...");
       return;
     }
 
     firstTimelineComplete = true;
     isHiding = false;
-    console.log("Activando segunda timeline...");
+    // console.log("Activando segunda timeline...");
 
     const secondTimelineContent = document.querySelector("main");
     const logoMask = document.querySelector("#logo-mask");
@@ -263,7 +268,7 @@
       ease: "back.out(1.2)",
     }, "<0.15");
 
-    console.log("Segunda timeline activada completamente");
+    // console.log("Segunda timeline activada completamente");
   };
 
   // Mostrar el gradiente al cargar la página
@@ -296,13 +301,17 @@
 
   function setupMainAnimation() {
     // Timeline principal con ScrollTrigger
+    const scrollLen = Math.max(window.innerHeight * 4, totalFrames * 14);
     const mainTimeline = gsap.timeline({
       ease: "power2.inOut",
       scrollTrigger: {
         trigger: "#main-content",
         start: "top top",
-        end: "bottom bottom",
+        end: () => "+=" + scrollLen,
         scrub: 2.5,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
           const progress = self.progress;
           const frameSectionProgress = Math.min(progress / 0.7, 1);

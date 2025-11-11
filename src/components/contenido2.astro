@@ -1,12 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Skin from '../components/skin.astro';
+import Skin from "../components/skin.astro";
+import Contenido3 from "../components/contenido3.astro";
+import Galeria from "../components/Galeria.astro";
+import Historia from "../components/historia.astro";
+import EnDesarrollo from "../components/EnDesarrollo.astro";
 
 const mySkins = [
   {
-    id: "my_first_skin",
-    skinPath: "/assets/OmsijepseBritannico.png",
-    animation: "CrouchAnimation",
+    id: "my_first_skin1",
+    skinPath: "/assets/Bondio.png",
+    animation: "WaveAnimation",
     autoRotate: false,
     cameraLightIntensity: 2.0,
     globalLightIntensity: 2.5,
@@ -19,8 +22,8 @@ const mySkins = [
   },
   {
     id: "my_first_skin2",
-    skinPath: "/assets/Bondio.png",
-    animation: "FlyingAnimation",
+    skinPath: "/assets/paco.png",
+    animation: "HitAnimation",
     autoRotate: false,
     cameraLightIntensity: 2.0,
     globalLightIntensity: 2.5,
@@ -33,36 +36,8 @@ const mySkins = [
   },
   {
     id: "my_first_skin3",
-    skinPath: "/assets/papita.png",
-    animation: "CrouchAnimation",
-    autoRotate: false,
-    cameraLightIntensity: 2.0,
-    globalLightIntensity: 2.5,
-    cameraPositionX: 0,
-    cameraPositionY: 15,
-    cameraPositionZ: 60,
-    cameraLookAtX: 0,
-    cameraLookAtY: 10,
-    cameraLookAtZ: 0,
-  },
-  {
-    id: "my_first_skin4",
-    skinPath: "/assets/paco.png",
-    animation: "FlyingAnimation",
-    autoRotate: false,
-    cameraLightIntensity: 2.0,
-    globalLightIntensity: 2.5,
-    cameraPositionX: 0,
-    cameraPositionY: 15,
-    cameraPositionZ: 60,
-    cameraLookAtX: 0,
-    cameraLookAtY: 10,
-    cameraLookAtZ: 0,
-  },
-  {
-    id: "my_first_skin5",
-    skinPath: "/assets/Xuchuwu.png",
-    animation: "CrouchAnimation",
+    skinPath: "/assets/deivi.png",
+    animation: "WaveAnimation",
     autoRotate: false,
     cameraLightIntensity: 2.0,
     globalLightIntensity: 2.5,
@@ -76,17 +51,55 @@ const mySkins = [
 ];
 ---
 
-<Layout>
-  <main>
-    <header>
-      <div class="logo-text"></div>
-    </header>
-    <div class="main-content">
-      <h1>Title</h1>
-      <p>Paragraph</p>
+<main>
+  <header>
+    <div class="logo-text"></div>
+  </header>
+  <div class="two-column-layout">
+    <div class="left-column">
+      <div class="main-content">
+        <h1>¡Bienvenidos a Britannia!</h1>
+        <p>Un poco de historia.</p>
+        <p>
+          La comunidad de Britannia nace en el año 2017, cuando un usuario;
+          ElGabyMC junto a su hermano Bondio. Crearon una ciudad en un servidor,
+          Britannia.
+        </p>
+        <p>
+          Rápidamente la ciudad formó amistades, invitando a gente la cuál fue
+          importante en la formación de la comunidad. Pasaron muchos nombres y
+          figuras en la ciudad, se destacan personas como: Moonky, daremill,
+          DaxterRecord, DogGamer, Lunei, Deixol, Tioupi. Algunos aún siguen
+          jugando.
+        </p>
+        <p>
+          Estas personas serían fundamentales para crear el sentido de
+          pertenencia y la personalidad de la ciudad, sin el aporte y el paso de
+          estas personas sería difícil tener los principios actuales de la
+          ciudad. Actualmente, en el año 2025, continuamos ese legado,
+          manteniendo esos principios y fomentando la diversión en la comunidad.
+        </p>
+      </div>
       <div class="skin-component">
         <Skin skinsToDisplay={mySkins} />
       </div>
     </div>
-  </main>
-</Layout>
+    <div class="right-column">
+      <img
+        src="/assets/Cocospawn.png"
+        alt="BritanniaCococraft"
+        style="width: 100%;"
+      />
+      <img
+        src="/assets/centro.png"
+        alt="Centro Britannia"
+        style="width: 100%; margin-top: 16px;"
+      />
+    </div>
+  </div>
+</main>
+
+<div style="margin-top: 160px; position: relative; z-index: 101;">
+  <EnDesarrollo />
+  
+</div>

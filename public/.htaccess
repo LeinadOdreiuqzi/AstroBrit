@@ -1,0 +1,40 @@
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# Caching
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 1h"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType application/json "access plus 1 week"
+  ExpiresByType image/svg+xml "access plus 6 months"
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/png "access plus 6 months"
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresDefault "access plus 1 week"
+</IfModule>
+
+# Security headers (basic)
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Favicon fallback
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Ensure index.html is served by default
+  DirectoryIndex index.html
+  # If browser requests /favicon.ico and doesn't exist, serve your PNG
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^favicon\.ico$ assets/Theeye.png [L]
+
+  # Optional: fallback to index.html for non-file/dir routes (if needed)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
