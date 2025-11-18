@@ -196,7 +196,8 @@
     const logoMask = document.querySelector("#logo-mask");
     const logoText = document.querySelector("main .logo-text");
     const title = document.querySelector("main .main-content h1");
-    const paragraph = document.querySelector("main .main-content p");
+    const paragraphs = document.querySelectorAll("main .main-content p");
+    const skinBlock = document.querySelector("main .skin-component");
 
     if (!secondTimelineContent) {
       console.error("No se encontró el contenido de la segunda timeline");
@@ -232,11 +233,11 @@
     if (title) {
       gsap.set(title, { opacity: 0, y: 30 });
     }
-    if (paragraph) {
-      gsap.set(paragraph, { opacity: 0, y: 40 });
+    if (paragraphs && paragraphs.length) {
+      paragraphs.forEach((p) => gsap.set(p, { opacity: 0, y: 30 }));
     }
-    if (document.querySelector("main .main-content skin-component")) { // Targeting the rendered Skin component
-      gsap.set("main .main-content skin-component", { opacity: 0, scale: 0.8 });
+    if (skinBlock) {
+      gsap.set(skinBlock, { opacity: 0, scale: 0.86 });
     }
 
     // 3. Animación de entrada de los bloques
@@ -254,19 +255,24 @@
       ease: "power3.out",
     }, "<0.1");
 
-    entryTimeline.to(paragraph, {
-      opacity: 1,
-      y: 0,
-      duration: 0.7,
-      ease: "power3.out",
-    }, "<0.1");
+    if (paragraphs && paragraphs.length) {
+      entryTimeline.to(paragraphs, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        stagger: 0.06,
+      }, "<0.1");
+    }
 
-    entryTimeline.to("main .main-content skin-component", {
-      opacity: 1,
-      scale: 1,
-      duration: 0.8,
-      ease: "back.out(1.2)",
-    }, "<0.15");
+    if (skinBlock) {
+      entryTimeline.to(skinBlock, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        ease: "back.out(1.2)",
+      }, "<0.15");
+    }
 
     // console.log("Segunda timeline activada completamente");
   };
@@ -357,8 +363,7 @@
               frames.forEach((frame) => {
                 if (frame) frame.style.display = "none";
               });
-              window.activateSecondTimeline(); // Activar la segunda timeline aquí
-              gsap.set("#logo-mask", { opacity: 0 }); // Ocultar la máscara al salir de la animación principal
+              window.activateSecondTimeline();
             },
           });
 
@@ -428,12 +433,12 @@
       .to(
         "#logo-mask",
         {
-          maskSize: "clamp(80vh, 50%, 60vh)",
-          webkitMaskSize: "clamp(80vh, 50%, 60vh)",
+          maskSize: "0vh",
+          webkitMaskSize: "0vh",
           duration: 2,
           ease: "power2.inOut",
         },
-        0.7, // Iniciar después de que los frames estén ocultándose
+        0.7
       )
       .to(
         "#hero-key",

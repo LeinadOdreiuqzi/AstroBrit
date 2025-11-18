@@ -2,7 +2,6 @@
 import Skin from "../components/skin.astro";
 import Contenido3 from "../components/contenido3.astro";
 import Galeria from "../components/Galeria.astro";
-import Historia from "../components/historia.astro";
 import EnDesarrollo from "../components/EnDesarrollo.astro";
 
 const mySkins = [
@@ -49,6 +48,57 @@ const mySkins = [
     cameraLookAtZ: 0,
   },
 ];
+
+// Definir los elementos de la galería
+const galleryItems = [
+  {
+    id: "hero-image",
+    src: "/assets/Cocospawn.png",
+    title: "Spawn de Britannia CocoCraft",
+    subtitle:
+      "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+  },
+  {
+    id: "gallery-1",
+    src: "/assets/centro.png",
+    title: "Centro de la ciudad",
+    subtitle: "Corazón de Britannia",
+  },
+  {
+    id: "gallery-2",
+    src: "/assets/servi.webp",
+    title: "Zona de servicios",
+    subtitle: "Área de comercio",
+  },
+  {
+    id: "gallery-3",
+    src: "/assets/servi.webp",
+    title: "Barrio residencial",
+    subtitle: "Hogar de los ciudadanos",
+  },
+  {
+    id: "gallery-4",
+    src: "/assets/servi.webp",
+    title: "Parque central",
+    subtitle: "Área de recreación",
+  },
+  {
+    id: "gallery-5",
+    src: "/assets/servi.webp",
+    title: "Puerto",
+    subtitle: "Conexión con el mar",
+  },
+];
+
+// Definir el layout personalizado para la galería
+const galleryLayout = [
+  { index: 0, className: "ms-3" }, // Imagen principal más grande
+  { index: 1, className: "ms-2" }, // Imagen secundaria
+  { index: 2, className: "ms-1" }, // Imagen pequeña
+  { index: 3, className: "ms-2" }, // Imagen mediana
+  { index: 4, className: "ms-1" }, // Imagen pequeña
+  { index: 5, className: "ms-2" }, // Imagen mediana
+];
 ---
 
 <main>
@@ -84,22 +134,316 @@ const mySkins = [
         <Skin skinsToDisplay={mySkins} />
       </div>
     </div>
-    <div class="right-column">
-      <img
-        src="/assets/Cocospawn.png"
-        alt="BritanniaCococraft"
-        style="width: 100%;"
-      />
-      <img
-        src="/assets/centro.png"
-        alt="Centro Britannia"
-        style="width: 100%; margin-top: 16px;"
-      />
-    </div>
   </div>
+
+  <h2
+    style="text-align: left; padding-left: 205px; margin-bottom: 10px; color: #ff6b00; font-size: 2.5rem;"
+  >
+    Britannia en cococraft
+  </h2>
+  <!-- Sección de Galería 
+  <section class="gallery-section" style="margin-top: 80px; padding: 0 20px;">
+    <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px 0;">
+      {galleryItems.slice(1).map((item, index) => (
+        <div 
+          class="gallery-item" 
+          style="
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 10px; 
+            cursor: pointer;
+            aspect-ratio: 4/3;
+            transition: transform 0.3s ease;
+          "
+          data-gallery-item
+          data-index={index + 1}
+          class="gallery-item"
+        >
+          <img 
+            src={item.src} 
+            alt={item.title}
+            style="
+              width: 100%; 
+              height: 100%; 
+              object-fit: cover;
+              transition: transform 0.3s ease;
+            "
+          />
+          <div 
+            style="
+              position: absolute; 
+              bottom: 0; 
+              left: 0; 
+              right: 0; 
+              background: linear-gradient(transparent, rgba(0,0,0,0.7)); 
+              padding: 15px;
+              color: white;
+            "
+          >
+            <h3 style="margin: 0 0 5px 0; font-size: 1.1rem;">{item.title}</h3>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">{item.subtitle}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section> !-->
 </main>
+
+<!-- Galería de Lightbox -->
+<div>
+  <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
+</div>
+
+<!-- Script para manejar la apertura del lightbox -->
+<script>
+  // Definir la interfaz para el elemento lightbox personalizado
+  interface LightboxElement extends HTMLElement {
+    open: () => void;
+    setAttribute: (name: string, value: string) => void;
+    getAttribute: (name: string) => string | null;
+  }
+
+  // Declarar la función en el ámbito global
+  declare global {
+    interface Window {
+      openLightbox: (index: number) => void;
+    }
+  }
+
+  function openLightbox(index: number) {
+    const lightbox = document.querySelector(
+      "lightbox-island",
+    ) as LightboxElement | null;
+    if (lightbox) {
+      // Asegurarse de que el layout se mantenga pero resaltar el ítem clickeado
+      const layout = JSON.parse(lightbox.getAttribute("layout") || "[]");
+      // Reorganizar el layout para que el ítem clickeado sea el primero después del hero
+      if (index > 0) {
+        const clickedItem = layout.find((item: any) => item.index === index);
+        if (clickedItem) {
+          const newLayout = [
+            layout[0], // Mantener el hero primero
+            clickedItem, // Poner el ítem clickeado en segundo lugar
+            ...layout.filter(
+              (item: any) => item.index !== 0 && item.index !== index,
+            ), // El resto
+          ];
+          lightbox.setAttribute("layout", JSON.stringify(newLayout));
+        }
+      }
+
+      if (lightbox.open) {
+        lightbox.open();
+      } else {
+        lightbox.setAttribute("open", "");
+      }
+    }
+  }
+
+  // Configurar los manejadores de eventos para los elementos de la galería
+  document.addEventListener("DOMContentLoaded", () => {
+    const galleryItems = document.querySelectorAll("[data-gallery-item]");
+    galleryItems.forEach((item) => {
+      item.addEventListener("click", (e) => {
+        const index = parseInt(item.getAttribute("data-index") || "0", 10);
+        openLightbox(index);
+      });
+    });
+  });
+
+  // Hacer la función accesible globalmente para compatibilidad
+  window.openLightbox = openLightbox;
+</script>
 
 <div style="margin-top: 160px; position: relative; z-index: 101;">
   <EnDesarrollo />
-  
 </div>
+
+<style>
+  .gallery-item {
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .gallery-item img {
+    transition: transform 0.3s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.05);
+  }
+
+  .gallery-section {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 40px 0;
+    border-radius: 15px;
+    margin: 60px 20px 0;
+  }
+
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    }
+  }
+
+  .two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .main-content {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .right-column img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+  .skin-component {
+    margin-top: 24px;
+    width: 100%;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .skin-viewers-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .main-content h1 {
+    font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+    line-height: 1.2;
+    margin: 0 0 8px;
+  }
+  .main-content p {
+    font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 1024px) {
+    .two-column-layout {
+      gap: 16px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .two-column-layout {
+      max-width: 1200px;
+      gap: 18px;
+    }
+  }
+  @media (max-width: 768px) {
+    .two-column-layout {
+      gap: 16px;
+    }
+    .main-content h1 {
+      font-size: clamp(1.4rem, 6vw, 2rem);
+    }
+    .main-content p {
+      font-size: clamp(0.9rem, 4.2vw, 1rem);
+    }
+  }
+  @media (max-width: 480px) {
+    .two-column-layout {
+      gap: 12px;
+    }
+  }
+</style>
+
+<script is:inline>
+  window.addEventListener("DOMContentLoaded", () => {
+    const gs = window.gsap;
+    const ST = window.ScrollTrigger;
+    if (!gs) return;
+    const mc = document.querySelector(".main-content");
+    const skins = document.querySelector(".skin-component");
+
+    const animateText = () => {
+      if (!mc) return;
+      const children = Array.from(mc.children);
+      gs.to(children, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: "power3.out",
+      });
+    };
+    const animateSkins = () => {
+      if (!skins) return;
+      gs.to(skins, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        ease: "power3.out",
+      });
+    };
+
+    if (mc) gs.set(mc.children, { opacity: 0, y: 24 });
+    if (skins) gs.set(skins, { opacity: 0, y: 24, scale: 0.98 });
+
+    if (ST && gs.registerPlugin) {
+      try {
+        gs.registerPlugin(ST);
+      } catch {}
+      if (mc)
+        gs.to(mc.children, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: { trigger: mc, start: "top 80%", once: true },
+        });
+      if (skins)
+        gs.to(skins, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          ease: "power3.out",
+          scrollTrigger: { trigger: skins, start: "top 80%", once: true },
+        });
+    } else {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            if (mc && entry.target === mc) animateText();
+            if (skins && entry.target === skins) animateSkins();
+            io.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.2 },
+      );
+      if (mc) io.observe(mc);
+      if (skins) io.observe(skins);
+    }
+  });
+</script>
