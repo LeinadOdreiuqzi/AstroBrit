@@ -22,11 +22,13 @@ const defaultItems = [
     title: "Morty Spawn",
     subtitle: "Galería",
   },
-  { id: "mosaic-1", src: "/assets/servi.webp", title: "Imagen 1" },
-  { id: "mosaic-2", src: "/assets/servi.webp", title: "Imagen 2" },
-  { id: "mosaic-3", src: "assets/servi.webp", title: "Imagen 3" },
-  { id: "mosaic-4", src: "assets/servi.webp", title: "Imagen 4" },
-  { id: "mosaic-5", src: "assets/servi.webp", title: "Imagen 5" },
+  { id: "mosaic-1", src: "/assets/torrebrujo.png", title: "Torre de Brujo" },
+  { id: "mosaic-2", src: "/assets/bar.png", title: "Barra de Brujo" },
+  { id: "mosaic-3", src: "assets/estatualaus.png", title: "Estatua de Laus" },
+  { id: "mosaic-4", src: "assets/centroplots.png", title: "Centro de la ciudad" },
+  { id: "mosaic-5", src: "assets/dragones.png", title: "Imagen 5" },
+  { id: "mosaic-6", src: "assets/dragones.png", title: "Imagen 6" },
+  { id: "mosaic-7", src: "assets/dragones.png", title: "Imagen 7" },
 ];
 
 const {
@@ -48,7 +50,7 @@ const {
       Astro.slots.has("hero") ? (
         <slot name="hero" />
       ) : (
-        <article class="gallery-item gallery-item--hero" data-id={items[0]?.id}>
+        <article class="gallery-item gallery-item--hero" data-id="hero-image">
           <div class="gallery-media">
             <img
               alt={items[0]?.title ?? "Imagen"}
@@ -59,9 +61,7 @@ const {
             />
           </div>
           <div class="gallery-overlay" aria-hidden="true" />
-          <div class="gallery-caption">
-            {items[0]?.title && <h3 class="caption-title">{items[0].title}</h3>}
-          </div>
+          <div class="hero-caption-inline">Spawn Britannia CocoCraft</div>
         </article>
       )
     ) : (
@@ -115,7 +115,6 @@ const {
     if (isHero) {
       const hero = document.querySelector(".gallery-item--hero");
       const overlay = hero?.querySelector(".gallery-overlay");
-      const caption = hero?.querySelector(".gallery-caption");
 
       if (!hero) {
         console.error("[gallery] hero no encontrado");
@@ -124,7 +123,7 @@ const {
       // island-based lightbox: no DOM prerequisites
 
       // Inicial
-      gsap.set([overlay, caption], { autoAlpha: 0 });
+      gsap.set(overlay, { autoAlpha: 0 });
       gsap.from(hero, {
         y: 30,
         autoAlpha: 0,
@@ -147,12 +146,6 @@ const {
             ease: "power2.out",
           });
           gsap.to(overlay, { autoAlpha: 1, duration: 0.2, ease: "power2.out" });
-          gsap.to(caption, {
-            autoAlpha: 1,
-            y: -4,
-            duration: 0.2,
-            ease: "power2.out",
-          });
           rAF = 0;
         });
       });
@@ -166,7 +159,6 @@ const {
           ease: "power2.out",
         });
         gsap.to(overlay, { autoAlpha: 0, duration: 0.2 });
-        gsap.to(caption, { autoAlpha: 0, y: 0, duration: 0.2 });
       });
       hero.addEventListener("click", () => {
         const island = document.querySelector("lightbox-island");
@@ -285,20 +277,13 @@ const {
     pointer-events: none;
   }
 
-  .gallery-caption {
+  .hero-caption-inline {
     position: absolute;
     left: 16px;
     bottom: 14px;
     color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-  }
-  .caption-title {
-    font-size: clamp(1.1rem, 2vw, 1.6rem);
     font-weight: 700;
-  }
-  .caption-sub {
-    font-size: clamp(0.85rem, 1.6vw, 1rem);
-    opacity: 0.85;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   }
 
   .gallery-grid {

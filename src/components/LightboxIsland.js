@@ -117,14 +117,22 @@ class LightboxIsland extends HTMLElement {
     const items = Array.isArray(this._items) ? this._items : [];
     // If layout provided, it wins and dictates order and classes
     if (Array.isArray(this._layout) && this._layout.length) {
-      return this._layout
+      const used = new Set();
+      const laidOut = this._layout
         .map((entry, pos) => {
           const idx = entry?.index;
           const data = typeof idx === "number" ? items[idx] : null;
           if (!data) return null;
+          used.add(idx);
           return { data, className: entry.className || "", key: `l-${pos}-${idx}` };
         })
         .filter(Boolean);
+
+      const remaining = items
+        .map((data, idx) => ({ data, className: "", key: `r-${idx}` }))
+        .filter((_, idx) => !used.has(idx));
+
+      return laidOut.concat(remaining);
     }
     // Else, if indices provided, use those in order
     if (Array.isArray(this._indices) && this._indices.length) {
@@ -196,9 +204,10 @@ class LightboxIsland extends HTMLElement {
         .hero { flex: 0 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 20px; width: min(1200px, 92vw); height: min(70vh, 640px); border-radius: 16px; }
         .hero-media { position: relative; border-radius: 16px; overflow: hidden; background: #111; }
         .hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .hero-info { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; text-align: center; padding: 16px 20px; color: #fff; background: transparent; border-radius: 16px; }
-        .hero-title { font-size: clamp(1.4rem, 2.2vw, 2rem); font-weight: 700; margin: 0 0 8px; }
-        .hero-sub { font-size: clamp(0.95rem, 1.6vw, 1.1rem); opacity: .9; }
+        .hero-info { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; text-align: left; padding: 20px 22px; color: #fff; background: transparent; border-radius: 16px; }
+        .hero-caption { font-size: clamp(0.9rem, 1.6vw, 1.05rem); font-weight: 600; color: rgba(255,180,90,0.95); letter-spacing: 0.3px; margin: 0 0 6px; }
+        .hero-title { font-size: clamp(1.6rem, 2.6vw, 2.2rem); font-weight: 800; margin: 0 0 10px; line-height: 1.15; }
+        .hero-sub { font-size: clamp(1rem, 1.8vw, 1.15rem); opacity: .92; line-height: 1.4; }
         .gallery-items { flex: 0 0 auto; display: flex; flex-direction: row; align-items: flex-start; gap: 52px; height: 100%; perspective: 800px; padding-top: 24px; }
         .gi-item { position: relative; flex: 0 0 auto; border-radius: 12px; overflow: hidden; background: #111; transform: translateY(calc(var(--y,0px) + var(--hy,0px))) translateZ(0) scale(var(--s,1)) rotate(var(--r,0deg)); transition: transform .25s ease, box-shadow .25s ease; box-shadow: 0 10px 24px rgba(0,0,0,.35); }
         .gi-item:not(:first-child) { margin-left: var(--ml,0px); }
@@ -226,7 +235,8 @@ class LightboxIsland extends HTMLElement {
             const fsrc = (first && first.src) || "/assets/servi.webp";
             const ftitle = (first && first.title) || "";
             const fsub = (first && first.subtitle) || "";
-            return `<section class=\"hero\" data-id=\"${fid}\"><div class=\"hero-media\"><img alt=\"${falt}\" loading=\"eager\" src=\"${fsrc}\" /></div><aside class=\"hero-info\"><h2 class=\"hero-title\">${ftitle}</h2><p class=\"hero-sub\">${fsub}</p></aside></section>`;
+            const fcap = "Spawn Britannia CocoCraft";
+            return `<section class=\"hero\" data-id=\"${fid}\"><div class=\"hero-media\"><img alt=\"${falt}\" loading=\"eager\" src=\"${fsrc}\" /></div><aside class=\"hero-info\"><div class=\"hero-caption\">${fcap}</div><h2 class=\"hero-title\">${ftitle}</h2><p class=\"hero-sub\">${fsub}</p></aside></section>`;
           })()}
           <section class="gallery-items">
             ${(() => {
@@ -309,14 +319,39 @@ class LightboxIsland extends HTMLElement {
     el.removeAttribute("hidden");
     el.setAttribute("aria-hidden", "false");
     this._fullOpen = true;
+    const g = window.gsap;
+    if (g) {
+      g.set(el, { autoAlpha: 0 });
+      if (img) g.set(img, { scale: 0.96, autoAlpha: 0 });
+      g.to(el, { autoAlpha: 1, duration: 0.2, ease: "power2.out" });
+      if (img) g.to(img, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "power3.out" }, "<0.05");
+    }
   }
 
   _closeFull() {
     const el = this._fullEl || this.shadowRoot.querySelector(".full-view");
     if (!el) return;
-    el.setAttribute("hidden", "");
-    el.setAttribute("aria-hidden", "true");
-    this._fullOpen = false;
+    const g = window.gsap;
+    if (g) {
+      const img = el.querySelector("img");
+      g.to(img || el, {
+        autoAlpha: 0,
+        scale: 0.96,
+        duration: 0.25,
+        ease: "power2.in",
+        onComplete: () => {
+          el.setAttribute("hidden", "");
+          el.setAttribute("aria-hidden", "true");
+          this._fullOpen = false;
+          if (img) g.set(img, { clearProps: "opacity,transform" });
+          g.set(el, { clearProps: "opacity" });
+        }
+      });
+    } else {
+      el.setAttribute("hidden", "");
+      el.setAttribute("aria-hidden", "true");
+      this._fullOpen = false;
+    }
   }
 
   _installScrollHandlers() {
