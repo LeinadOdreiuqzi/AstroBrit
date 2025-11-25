@@ -1,6 +1,6 @@
 class LightboxIsland extends HTMLElement {
   static get observedAttributes() {
-    return ["open", "items", "indices", "layout"];
+    return ["open", "items", "indices", "layout", "caption"];
   }
 
   constructor() {
@@ -10,6 +10,7 @@ class LightboxIsland extends HTMLElement {
     this._items = [];
     this._indices = null; // optional: array of positions to render
     this._layout = null; // optional: array of { index, className }
+    this._caption = "";
     this._prevFocus = null;
     this._contentEl = null;
     this._wheelHandler = null;
@@ -49,6 +50,9 @@ class LightboxIsland extends HTMLElement {
         this._layout = null;
       }
       this._render();
+    } else if (name === "caption") {
+      this._caption = value || "";
+      this._render();
     }
   }
 
@@ -79,22 +83,24 @@ class LightboxIsland extends HTMLElement {
     const root = this.shadowRoot.querySelector(".lightbox");
     const g = window.gsap;
     if (g && root) {
-      g.to(root, { autoAlpha: 0, y: 18, duration: 0.35, ease: "power2.in", onComplete: () => {
-        document.documentElement.classList.remove("lb-open");
-        document.body.classList.remove("lb-open");
-        this.removeAttribute("open");
-        if (this._prevFocus && typeof this._prevFocus.focus === "function") {
-          try { this._prevFocus.focus(); } catch {}
+      g.to(root, {
+        autoAlpha: 0, y: 18, duration: 0.35, ease: "power2.in", onComplete: () => {
+          document.documentElement.classList.remove("lb-open");
+          document.body.classList.remove("lb-open");
+          this.removeAttribute("open");
+          if (this._prevFocus && typeof this._prevFocus.focus === "function") {
+            try { this._prevFocus.focus(); } catch { }
+          }
+          this._removeScrollHandlers();
+          g.set(root, { clearProps: "opacity,transform" });
         }
-        this._removeScrollHandlers();
-        g.set(root, { clearProps: "opacity,transform" });
-      }});
+      });
     } else {
       document.documentElement.classList.remove("lb-open");
       document.body.classList.remove("lb-open");
       this.removeAttribute("open");
       if (this._prevFocus && typeof this._prevFocus.focus === "function") {
-        try { this._prevFocus.focus(); } catch {}
+        try { this._prevFocus.focus(); } catch { }
       }
       this._removeScrollHandlers();
     }
@@ -230,45 +236,51 @@ class LightboxIsland extends HTMLElement {
         
         <div class="lightbox-content">
           ${(() => {
-            const fid = (first && (first.id || "hero")) || "hero";
-            const falt = (first && (first.title || "Imagen")) || "Imagen";
-            const fsrc = (first && first.src) || "/assets/servi.webp";
-            const ftitle = (first && first.title) || "";
-            const fsub = (first && first.subtitle) || "";
-            const fcap = "Spawn Britannia CocoCraft";
-            return `<section class=\"hero\" data-id=\"${fid}\"><div class=\"hero-media\"><img alt=\"${falt}\" loading=\"eager\" src=\"${fsrc}\" /></div><aside class=\"hero-info\"><div class=\"hero-caption\">${fcap}</div><h2 class=\"hero-title\">${ftitle}</h2><p class=\"hero-sub\">${fsub}</p></aside></section>`;
-          })()}
+        const fid = (first && (first.id || "hero")) || "hero";
+        const falt = (first && (first.title || "Imagen")) || "Imagen";
+        let fsrc = (first && first.src) || "/assets/servi.webp";
+        if (typeof fsrc === "object" && fsrc !== null && fsrc.src) {
+          fsrc = fsrc.src;
+        }
+        const ftitle = (first && first.title) || "";
+        const fsub = (first && first.subtitle) || "";
+        const fcap = this._caption || "Spawn Britannia CocoCraft";
+        return `<section class=\"hero\" data-id=\"${fid}\"><div class=\"hero-media\"><img alt=\"${falt}\" loading=\"eager\" src=\"${fsrc}\" /></div><aside class=\"hero-info\"><div class=\"hero-caption\">${fcap}</div><h2 class=\"hero-title\">${ftitle}</h2><p class=\"hero-sub\">${fsub}</p></aside></section>`;
+      })()}
           <section class="gallery-items">
             ${(() => {
-              const count = rest.length;
-              return rest.map((entry, i) => {
-                const it = entry.data || entry;
-                const id = (it && it.id) || `it-${i+1}`;
-                const alt = (it && (it.title || "Imagen")) || "Imagen";
-                const src = (it && it.src) || "/assets/servi.webp";
-                const ratio = count > 1 ? i / (count - 1) : 0;
-                const cycle = ["gi-md","gi-xl","gi-sm","gi-lg","gi-md","gi-lg","gi-xl","gi-sm"];
-                const cls = cycle[i % cycle.length];
-              const amp = 46;
-              const wave = Math.sin(i * 0.85) * amp;
-              const jitter = (Math.random() * 24) - 12;
-              const off = Math.round(wave + jitter);
-              const rotBase = Math.cos(i * 0.9) * 3 + ((Math.random() * 3) - 1.5);
-              const rot = Math.round(rotBase * 100) / 100;
-              const scl = 1 + (Math.sin(i * 0.6) * 0.03) + ((Math.random() * 0.02) - 0.01);
-              const px = (cls === "gi-xl" ? 0.06 : cls === "gi-lg" ? 0.07 : cls === "gi-md" ? 0.08 : 0.09) * (i % 2 === 0 ? 1 : -1);
-              const z = cls === "gi-xl" ? 4 : cls === "gi-lg" ? 3 : cls === "gi-md" ? 2 : 1;
-              const baseH = cls === "gi-xl" ? 420 : cls === "gi-lg" ? 340 : cls === "gi-md" ? 260 : 180;
-              const hJitter = Math.round((Math.sin(i * 0.65) * 40) + ((Math.random() * 120) - 60));
-              const h = Math.max(160, baseH + hJitter);
-              const mtAmp = 120;
-              const mtWave = Math.sin(i * 0.7) * mtAmp;
-              const mtJ = (Math.random() * 80) - 20;
-              const mt = Math.max(0, Math.round(mtWave + mtJ));
-              const ml = 0;
-                return `<article class=\"gi-item ${cls}\" data-id=\"${id}\" data-parallax=\"${px}\" data-base-offset=\"${off}\" data-rot=\"${rot}\" style=\"--y:${off}px; --ml:${ml}px; --mt:${mt}px; --r:${rot}deg; --s:${scl}; --z:${z}; height:${h}px;\"><img alt=\"${alt}\" loading=\"lazy\" src=\"${src}\" /></article>`;
-              }).join("");
-            })()}
+        const count = rest.length;
+        return rest.map((entry, i) => {
+          const it = entry.data || entry;
+          const id = (it && it.id) || `it-${i + 1}`;
+          const alt = (it && (it.title || "Imagen")) || "Imagen";
+          let src = (it && it.src) || "/assets/servi.webp";
+          if (typeof src === "object" && src !== null && src.src) {
+            src = src.src;
+          }
+          const ratio = count > 1 ? i / (count - 1) : 0;
+          const cycle = ["gi-md", "gi-xl", "gi-sm", "gi-lg", "gi-md", "gi-lg", "gi-xl", "gi-sm"];
+          const cls = cycle[i % cycle.length];
+          const amp = 46;
+          const wave = Math.sin(i * 0.85) * amp;
+          const jitter = (Math.random() * 24) - 12;
+          const off = Math.round(wave + jitter);
+          const rotBase = Math.cos(i * 0.9) * 3 + ((Math.random() * 3) - 1.5);
+          const rot = Math.round(rotBase * 100) / 100;
+          const scl = 1 + (Math.sin(i * 0.6) * 0.03) + ((Math.random() * 0.02) - 0.01);
+          const px = (cls === "gi-xl" ? 0.06 : cls === "gi-lg" ? 0.07 : cls === "gi-md" ? 0.08 : 0.09) * (i % 2 === 0 ? 1 : -1);
+          const z = cls === "gi-xl" ? 4 : cls === "gi-lg" ? 3 : cls === "gi-md" ? 2 : 1;
+          const baseH = cls === "gi-xl" ? 420 : cls === "gi-lg" ? 340 : cls === "gi-md" ? 260 : 180;
+          const hJitter = Math.round((Math.sin(i * 0.65) * 40) + ((Math.random() * 120) - 60));
+          const h = Math.max(160, baseH + hJitter);
+          const mtAmp = 120;
+          const mtWave = Math.sin(i * 0.7) * mtAmp;
+          const mtJ = (Math.random() * 80) - 20;
+          const mt = Math.max(0, Math.round(mtWave + mtJ));
+          const ml = 0;
+          return `<article class=\"gi-item ${cls}\" data-id=\"${id}\" data-parallax=\"${px}\" data-base-offset=\"${off}\" data-rot=\"${rot}\" style=\"--y:${off}px; --ml:${ml}px; --mt:${mt}px; --r:${rot}deg; --s:${scl}; --z:${z}; height:${h}px;\"><img alt=\"${alt}\" loading=\"lazy\" src=\"${src}\" /></article>`;
+        }).join("");
+      })()}
           </section>
         </div>
         <div class="full-view" hidden aria-hidden="true">
@@ -281,7 +293,7 @@ class LightboxIsland extends HTMLElement {
     const closeBtn = this.shadowRoot.querySelector(".lightbox-close");
     closeBtn?.addEventListener("click", this._onClose, { once: false });
     this._contentEl = this.shadowRoot.querySelector(".lightbox-content");
-    
+
     this._fullEl = this.shadowRoot.querySelector(".full-view");
     const fullClose = this.shadowRoot.querySelector(".full-close");
     fullClose?.addEventListener("click", () => this._closeFull());

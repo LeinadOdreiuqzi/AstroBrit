@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+
 // Gallery item type definition
 const GalleryItem = {
   id: "",
@@ -13,6 +15,7 @@ const Props = {
   variant: "hero",
   layout: null,
   indices: null,
+  caption: null,
 };
 
 const defaultItems = [
@@ -25,7 +28,11 @@ const defaultItems = [
   { id: "mosaic-1", src: "/assets/torrebrujo.png", title: "Torre de Brujo" },
   { id: "mosaic-2", src: "/assets/bar.png", title: "Barra de Brujo" },
   { id: "mosaic-3", src: "assets/estatualaus.png", title: "Estatua de Laus" },
-  { id: "mosaic-4", src: "assets/centroplots.png", title: "Centro de la ciudad" },
+  {
+    id: "mosaic-4",
+    src: "assets/centroplots.png",
+    title: "Centro de la ciudad",
+  },
   { id: "mosaic-5", src: "assets/dragones.png", title: "Imagen 5" },
   { id: "mosaic-6", src: "assets/dragones.png", title: "Imagen 6" },
   { id: "mosaic-7", src: "assets/dragones.png", title: "Imagen 7" },
@@ -37,13 +44,16 @@ const {
   variant = items.length === 1 ? "hero" : "mosaic",
   layout = null,
   indices = null,
+  caption = null,
 } = Astro.props;
+const uid = "gal-" + Math.random().toString(36).slice(2);
 ---
 
 <section
   class={`gallery gallery--${variant}`}
   aria-label="Galería de imágenes"
   data-items={JSON.stringify(items)}
+  data-uid={uid}
 >
   {
     variant === "hero" ? (
@@ -52,16 +62,18 @@ const {
       ) : (
         <article class="gallery-item gallery-item--hero" data-id="hero-image">
           <div class="gallery-media">
-            <img
+            <Image
               alt={items[0]?.title ?? "Imagen"}
-              width="120"
-              height="60"
+              width={1200}
+              height={600}
               loading="eager"
               src={items[0]?.src || "/assets/servi.webp"}
             />
           </div>
           <div class="gallery-overlay" aria-hidden="true" />
-          <div class="hero-caption-inline">Spawn Britannia CocoCraft</div>
+          <div class="hero-caption-inline">
+            {caption ?? "Spawn Britannia CocoCraft"}
+          </div>
         </article>
       )
     ) : (
@@ -78,30 +90,30 @@ const {
 
 <!-- Web Component Island for Lightbox -->
 <lightbox-island
-  id="lightboxIsland"
+  id={`lightboxIsland-${uid}`}
   items={JSON.stringify(items)}
   layout={JSON.stringify(layout ?? null)}
   indices={JSON.stringify(indices ?? null)}
-></lightbox-island>
+  caption={caption ?? null}></lightbox-island>
 
 <!-- Client-side script for the lightbox component -->
 <script>
   // This will be executed on the client side
-  import './LightboxIsland.js';
+  import "./LightboxIsland.js";
 </script>
 
-<script type="module">
+<script type="module" define:vars={{ uid }}>
   // Esperar a DOMContentLoaded para asegurarnos de que Astro ya montó el HTML
   window.addEventListener("DOMContentLoaded", () => {
     // console.log("[gallery] DOM ready");
 
-    const galleryRoot = document.querySelector(".gallery");
+    const galleryRoot = document.querySelector(`.gallery[data-uid="${uid}"]`);
     if (!galleryRoot) {
       console.error("[gallery] .gallery no encontrada");
       return;
     }
 
-    const isHero = !!document.querySelector(".gallery-item--hero");
+    const isHero = !!galleryRoot.querySelector(".gallery-item--hero");
     let itemsData = [];
 
     try {
@@ -113,7 +125,7 @@ const {
     }
 
     if (isHero) {
-      const hero = document.querySelector(".gallery-item--hero");
+      const hero = galleryRoot.querySelector(".gallery-item--hero");
       const overlay = hero?.querySelector(".gallery-overlay");
 
       if (!hero) {
@@ -123,13 +135,20 @@ const {
       // island-based lightbox: no DOM prerequisites
 
       // Inicial
-      gsap.set(overlay, { autoAlpha: 0 });
-      gsap.from(hero, {
-        y: 30,
-        autoAlpha: 0,
-        duration: 0.8,
-        ease: "power3.out",
-      });
+      const g = window.gsap;
+      if (g) {
+        try {
+          g.set(overlay, { autoAlpha: 0 });
+        } catch {}
+        try {
+          g.from(hero, {
+            y: 30,
+            autoAlpha: 0,
+            duration: 0.8,
+            ease: "power3.out",
+          });
+        } catch {}
+      }
 
       let rAF = 0;
       hero.addEventListener("pointermove", (e) => {
@@ -138,39 +157,55 @@ const {
           const rect = hero.getBoundingClientRect();
           const cx = e.clientX - rect.left - rect.width / 2;
           const cy = e.clientY - rect.top - rect.height / 2;
-          gsap.to(hero, {
-            rotationY: cx / 40,
-            rotationX: -cy / 40,
-            scale: 1.02,
-            duration: 0.18,
-            ease: "power2.out",
-          });
-          gsap.to(overlay, { autoAlpha: 1, duration: 0.2, ease: "power2.out" });
+          const g = window.gsap;
+          if (g) {
+            try {
+              g.to(hero, {
+                rotationY: cx / 40,
+                rotationX: -cy / 40,
+                scale: 1.02,
+                duration: 0.18,
+                ease: "power2.out",
+              });
+              g.to(overlay, {
+                autoAlpha: 1,
+                duration: 0.2,
+                ease: "power2.out",
+              });
+            } catch {}
+          }
           rAF = 0;
         });
       });
 
       hero.addEventListener("pointerleave", () => {
-        gsap.to(hero, {
-          rotationX: 0,
-          rotationY: 0,
-          scale: 1,
-          duration: 0.25,
-          ease: "power2.out",
-        });
-        gsap.to(overlay, { autoAlpha: 0, duration: 0.2 });
+        const g = window.gsap;
+        if (g) {
+          try {
+            g.to(hero, {
+              rotationX: 0,
+              rotationY: 0,
+              scale: 1,
+              duration: 0.25,
+              ease: "power2.out",
+            });
+            g.to(overlay, { autoAlpha: 0, duration: 0.2 });
+          } catch {}
+        }
       });
       hero.addEventListener("click", () => {
-        const island = document.querySelector("lightbox-island");
+        const island = document.getElementById(`lightboxIsland-${uid}`);
         if (!island) return;
         // Pasa todos los items (control selectivo por layout/indices)
-        try { island.setAttribute("items", JSON.stringify(itemsData)); } catch {}
+        try {
+          island.setAttribute("items", JSON.stringify(itemsData));
+        } catch {}
         if (typeof island.open === "function") island.open();
         else island.setAttribute("open", "");
       }); // fin hero click
     } // fin isHero
     else {
-      const grid = document.getElementById("gallery-grid");
+      const grid = galleryRoot.querySelector("#gallery-grid");
       if (!grid) {
         console.error("[gallery] gallery-grid no encontrado");
         return;
@@ -180,20 +215,31 @@ const {
       const getGridItems = () =>
         Array.from(grid.querySelectorAll(".gallery-item"));
       const gridItems = getGridItems();
-      gsap.from(gridItems, {
-        y: 30,
-        autoAlpha: 0,
-        scale: 0.98,
-        duration: 0.7,
-        ease: "power3.out",
-        stagger: 0.05,
-      });
+      {
+        const g = window.gsap;
+        if (g) {
+          try {
+            g.from(gridItems, {
+              y: 30,
+              autoAlpha: 0,
+              scale: 0.98,
+              duration: 0.7,
+              ease: "power3.out",
+              stagger: 0.05,
+            });
+          } catch {}
+        }
+      }
 
       const shuffleGallery = () => {
         const currentItems = getGridItems();
         const FlipLib = window.Flip;
+        const g = window.gsap;
         const state = FlipLib ? FlipLib.getState(currentItems) : null;
-        const shuffled = gsap.utils.shuffle([...currentItems]);
+        const shuffled =
+          g && g.utils
+            ? g.utils.shuffle([...currentItems])
+            : [...currentItems].sort(() => Math.random() - 0.5);
         shuffled.forEach((el) => grid.appendChild(el));
         if (FlipLib && state) {
           FlipLib.from(state, {
@@ -213,9 +259,11 @@ const {
       grid.addEventListener("click", (e) => {
         const item = e.target.closest(".gallery-item");
         if (!item) return;
-        const island = document.querySelector("lightbox-island");
+        const island = document.getElementById(`lightboxIsland-${uid}`);
         if (!island) return;
-        try { island.setAttribute("items", JSON.stringify(itemsData)); } catch {}
+        try {
+          island.setAttribute("items", JSON.stringify(itemsData));
+        } catch {}
         if (typeof island.open === "function") island.open();
         else island.setAttribute("open", "");
       });

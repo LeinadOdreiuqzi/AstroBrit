@@ -4,10 +4,22 @@ import Contenido3 from "../components/contenido3.astro";
 import Galeria from "../components/Galeria.astro";
 import EnDesarrollo from "../components/EnDesarrollo.astro";
 
+// Import assets
+import Bondio from "../assets/Bondio.png";
+import Paco from "../assets/paco.png";
+import Deivi from "../assets/deivi.png";
+import Cocospawn from "../assets/Cocospawn.png";
+import CentroPlots from "../assets/centroplots.png";
+import EstatuaLaus from "../assets/estatuaLaus.png";
+import TorreBrujo from "../assets/torrebrujo.png";
+import Bar from "../assets/bar.png";
+import Dragones from "../assets/dragones.png";
+import PolloWow from "../assets/pollowow.png";
+
 const mySkins = [
   {
     id: "my_first_skin1",
-    skinPath: "/assets/Bondio.png",
+    skinPath: Bondio.src,
     animation: "WaveAnimation",
     autoRotate: false,
     cameraLightIntensity: 2.0,
@@ -21,7 +33,7 @@ const mySkins = [
   },
   {
     id: "my_first_skin2",
-    skinPath: "/assets/paco.png",
+    skinPath: Paco.src,
     animation: "HitAnimation",
     autoRotate: false,
     cameraLightIntensity: 2.0,
@@ -35,7 +47,7 @@ const mySkins = [
   },
   {
     id: "my_first_skin3",
-    skinPath: "/assets/deivi.png",
+    skinPath: Deivi.src,
     animation: "WaveAnimation",
     autoRotate: false,
     cameraLightIntensity: 2.0,
@@ -53,52 +65,73 @@ const mySkins = [
 const galleryItems = [
   {
     id: "hero-image",
-    src: "/assets/Cocospawn.png",
+    src: Cocospawn,
     title: "EL CORAZÓN DE BRITANNIA",
     subtitle:
       "Los años pasan, pero el Ojo sigue siendo el símbolo eterno en el centro de la ciudad. Bajo su mirada incansable, Britannia se mantiene viva: veteranos y recién llegados se encuentran aquí para comenzar nuevas aventuras y fortalecer la historia de la comunidad. <br> Hay lugar para todos:  Los relatos compartidos entre amigos y las tradiciones que nos mantienen unidos cada año. El Ojo observa y protege, inspirando a todos los que pisan esta ciudad legendaria.",
   },
   {
     id: "gallery-1",
-    src: "/assets/centroplots.png",
+    src: CentroPlots,
     title: "Centro de la ciudad",
     subtitle: "Centro de la ciudad",
   },
   {
     id: "gallery-2",
-    src: "/assets/estatuaLaus.png",
+    src: EstatuaLaus,
     title: "Estatua de laus",
     subtitle: "",
   },
   {
     id: "gallery-3",
-    src: "/assets/torrebrujo.png",
+    src: TorreBrujo,
     title: "Torre del Brujo",
     subtitle: "Hogar del brujo",
   },
   {
     id: "gallery-4",
-    src: "/assets/bar.png",
+    src: Bar,
     title: "Bar",
     subtitle: "Área de recreación",
   },
   {
     id: "gallery-5",
-    src: "/assets/dragones.png",
+    src: Dragones,
     title: "estatuas de dragones del antiguo spawn",
     subtitle: "Antiguo spawn",
   },
   {
     id: "gallery-6",
-    src: "/assets/pollowow.png",
+    src: PolloWow,
     title: "Algo esconde en su interior",
     subtitle: "pollo wow",
   },
+];
+
+const galleryItemsHero2 = [
   {
-    id: "gallery-7",
-    src: "/assets/dragones.png",
-    title: "estatuas de dragones del antiguo spawn",
-    subtitle: "Antiguo spawn",
+    id: "hero-brujo",
+    src: TorreBrujo,
+    title: "TORRE DEL BRUJO",
+    subtitle: "Vista principal",
+  },
+  {
+    id: "brujo-1",
+    src: Bar,
+    title: "Bar",
+    subtitle: "Zona social",
+  },
+  {
+    id: "brujo-2",
+    src: CentroPlots,
+    title: "Centro de la ciudad",
+    subtitle: "",
+  },
+  {
+    id: "brujo-3",
+    src: Dragones,
+    title: "Dragones",
+    subtitle: "",
   },
 ];
 
@@ -205,6 +238,10 @@ const galleryLayout = [
 <div>
   <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
 </div>
+
+<!-- <div style="margin-top: 40px;">
+  <Galeria items={galleryItemsHero2} variant="hero" caption="Torre del Brujo" />
+</div> -->
 
 <!-- Script para manejar la apertura del lightbox -->
 <script>
