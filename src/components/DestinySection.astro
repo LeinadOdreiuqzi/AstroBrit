@@ -9,7 +9,7 @@ import guiso from "../assets/guiso.png";
 import tugfabrit from "../assets/tugfabrit.png";
 import embio from "../assets/embio.png";
 import papita from "../assets/papita.png";
-
+import omsijepse from "../assets/OmsijepseBritannico.png";
 const mySkins = [
     {
         id: "my_first_skin1",
@@ -70,7 +70,7 @@ const mySkins = [
     },
     {
         id: "my_first_skin4",
-        skinPath: "/assets/OmsijepseBritannico.png",
+        skinPath: omsijepse.src,
         animation: "CrouchAnimation",
         autoRotate: false,
         cameraLightIntensity: 2.0,
@@ -164,7 +164,6 @@ const mySkins = [
         elogios: 5646,
     },
 ];
-const shuffledSkins = [...mySkins].sort(() => Math.random() - 0.5);
 ---
 
 <section class="destiny-section">
@@ -175,10 +174,24 @@ const shuffledSkins = [...mySkins].sort(() => Math.random() - 0.5);
         </p>
 
         <div class="skins-grid">
-            <Skin skinsToDisplay={shuffledSkins} interactive={true} />
+            <Skin skinsToDisplay={mySkins} interactive={true} />
         </div>
     </div>
 </section>
+
+<script>
+    // Client-side randomization to ensure fresh order on every visit in production
+    document.addEventListener("DOMContentLoaded", () => {
+        const grid = document.querySelector(
+            ".skins-grid .skin-viewers-container",
+        );
+        if (grid) {
+            const items = Array.from(grid.children);
+            items.sort(() => Math.random() - 0.5);
+            items.forEach((item) => grid.appendChild(item));
+        }
+    });
+</script>
 
 <style>
     .destiny-section {
