@@ -44,6 +44,7 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
   src="https://cdn.jsdelivr.net/npm/skinview3d/bundles/skinview3d.bundle.js"
 ></script>
 <script define:vars={{ skinsToDisplay, containerId, interactive }}>
+  const viewers = new Map();
   /*
     - skinview3d.IdleAnimation() : Animación de inactividad.
     - skinview3d.WalkingAnimation() : Animación de caminar.
@@ -53,46 +54,76 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
     - skinview3d.CrouchAnimation() : Animación de agacharse.
     - skinview3d.HitAnimation() : Animación de ser golpeado.
     */
+  const initViewer = (skinConfig) => {
+    const canvasElement = document.getElementById(skinConfig.id);
+    if (!canvasElement) return null;
+
+    const skinViewer = new skinview3d.SkinViewer({
+      canvas: canvasElement,
+      width: 200,
+      height: 300,
+      skin: skinConfig.skinPath,
+    });
+
+    // Fix for: Uncaught TypeError: skinview3d[skinConfig.animation] is not a constructor
+    if (
+      skinConfig.animation &&
+      typeof skinview3d[skinConfig.animation] === "function"
+    ) {
+      skinViewer.animation = new skinview3d[skinConfig.animation]();
+    } else {
+      skinViewer.animation = new skinview3d.IdleAnimation();
+    }
+
+    skinViewer.autoRotate =
+      skinConfig.autoRotate !== undefined ? skinConfig.autoRotate : true;
+    skinViewer.cameraLight.intensity = skinConfig.cameraLightIntensity ?? 1.9;
+    skinViewer.globalLight.intensity = skinConfig.globalLightIntensity ?? 2.4;
+
+    skinViewer.camera.position.set(
+      skinConfig.cameraPositionX ?? 0,
+      skinConfig.cameraPositionY ?? 15,
+      skinConfig.cameraPositionZ ?? 60,
+    );
+
+    skinViewer.camera.lookAt(
+      skinConfig.cameraLookAtX ?? 0,
+      skinConfig.cameraLookAtY ?? 10,
+      skinConfig.cameraLookAtZ ?? 0,
+    );
+
+    return skinViewer;
+  };
+
+  // Intersection Observer to handle WebGL context limit
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.id;
+        const config = JSON.parse(
+          entry.target.parentElement.getAttribute("data-skin-config"),
+        );
+
+        if (entry.isIntersecting) {
+          if (!viewers.has(id)) {
+            const viewer = initViewer(config);
+            if (viewer) viewers.set(id, viewer);
+          }
+        } else {
+          if (viewers.has(id)) {
+            viewers.get(id).dispose();
+            viewers.delete(id);
+          }
+        }
+      });
+    },
+    { rootMargin: "100px" },
+  );
+
+  // Start observing
   skinsToDisplay.forEach((skinConfig) => {
     const canvasElement = document.getElementById(skinConfig.id);
-    if (canvasElement) {
-      const skinViewer = new skinview3d.SkinViewer({
-        canvas: canvasElement,
-        width: 200,
-        height: 300,
-        skin: skinConfig.skinPath,
-      });
-
-      skinViewer.animation = skinConfig.animation
-        ? new skinview3d[skinConfig.animation]()
-        : new skinview3d.IdleAnimation();
-      skinViewer.autoRotate =
-        skinConfig.autoRotate !== undefined ? skinConfig.autoRotate : true;
-      skinViewer.cameraLight.intensity =
-        skinConfig.cameraLightIntensity !== undefined
-          ? skinConfig.cameraLightIntensity
-          : 1.9;
-      skinViewer.globalLight.intensity =
-        skinConfig.globalLightIntensity !== undefined
-          ? skinConfig.globalLightIntensity
-          : 2.4;
-      skinViewer.camera.position.set(
-        skinConfig.cameraPositionX !== undefined
-          ? skinConfig.cameraPositionX
-          : 0,
-        skinConfig.cameraPositionY !== undefined
-          ? skinConfig.cameraPositionY
-          : 15,
-        skinConfig.cameraPositionZ !== undefined
-          ? skinConfig.cameraPositionZ
-          : 60,
-      );
-      skinViewer.camera.lookAt(
-        skinConfig.cameraLookAtX !== undefined ? skinConfig.cameraLookAtX : 0,
-        skinConfig.cameraLookAtY !== undefined ? skinConfig.cameraLookAtY : 10,
-        skinConfig.cameraLookAtZ !== undefined ? skinConfig.cameraLookAtZ : 0,
-      );
-    }
+    if (canvasElement) observer.observe(canvasElement);
   });
 
   // Handle clicks - Scoped to this container only
@@ -101,7 +132,6 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
     const skinItems = container.querySelectorAll(".skin-item");
     skinItems.forEach((item) => {
       item.addEventListener("click", (e) => {
-        // Stop propagation to prevent bubbling issues
         e.stopPropagation();
 
         try {
@@ -109,7 +139,6 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
           const lightbox = document.querySelector("lightbox-island");
 
           if (lightbox) {
-            // Set mode to destiny
             lightbox.setAttribute("mode", "destiny");
 
             const itemData = {
@@ -127,8 +156,6 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
             } else {
               lightbox.setAttribute("open", "");
             }
-          } else {
-            console.warn("Lightbox component not found");
           }
         } catch (e) {
           console.error("Error opening skin lightbox:", e);

@@ -5,6 +5,10 @@ import Skin from "./skin.astro";
 import Bondio from "../assets/Bondio.png";
 import Paco from "../assets/paco.png";
 import Deivi from "../assets/deivi.png";
+import guiso from "../assets/guiso.png";
+import tugfabrit from "../assets/tugfabrit.png";
+import embio from "../assets/embio.png";
+import papita from "../assets/papita.png";
 
 const mySkins = [
     {
@@ -83,7 +87,84 @@ const mySkins = [
         userDescription: "Temporada 28 // R100 // L340",
         elogios: 9999,
     },
+    {
+        id: "my_first_skin5",
+        skinPath: guiso.src,
+        animation: "WaveAnimation",
+        autoRotate: false,
+        cameraLightIntensity: 2.0,
+        globalLightIntensity: 2.5,
+        cameraPositionX: 0,
+        cameraPositionY: 15,
+        cameraPositionZ: 60,
+        cameraLookAtX: 0,
+        cameraLookAtY: 10,
+        cameraLookAtZ: 0,
+        rank: "11",
+        rankTitle: "Leyenda",
+        username: "GuisoMaster",
+        userDescription: "Temporada 28 // R100 // L340",
+        elogios: 404,
+    },
+    {
+        id: "my_first_skin6",
+        skinPath: embio.src,
+        animation: "",
+        autoRotate: false,
+        cameraLightIntensity: 2.0,
+        globalLightIntensity: 2.5,
+        cameraPositionX: 0,
+        cameraPositionY: 15,
+        cameraPositionZ: 60,
+        cameraLookAtX: 0,
+        cameraLookAtY: 10,
+        cameraLookAtZ: 0,
+        rank: "11",
+        rankTitle: "Leyenda",
+        username: "MR3mbiozz",
+        userDescription: "Temporada 28 // R100 // L340",
+        elogios: 1457,
+    },
+    {
+        id: "my_first_skin7",
+        skinPath: papita.src,
+        animation: "CrouchAnimation",
+        autoRotate: false,
+        cameraLightIntensity: 2.0,
+        globalLightIntensity: 2.5,
+        cameraPositionX: 0,
+        cameraPositionY: 15,
+        cameraPositionZ: 60,
+        cameraLookAtX: 0,
+        cameraLookAtY: 10,
+        cameraLookAtZ: 0,
+        rank: "7",
+        rankTitle: "Elite",
+        username: "Papitafritaxdd",
+        userDescription: "Temporada 28 // R100 // L340",
+        elogios: 124,
+    },
+    {
+        id: "my_first_skin8",
+        skinPath: tugfabrit.src,
+        animation: "StandAnimation",
+        autoRotate: false,
+        cameraLightIntensity: 2.0,
+        globalLightIntensity: 2.5,
+        cameraPositionX: 0,
+        cameraPositionY: 15,
+        cameraPositionZ: 60,
+        cameraLookAtX: 0,
+        cameraLookAtY: 10,
+        cameraLookAtZ: 0,
+        rank: "4",
+        rankTitle: "Aventurero",
+        username: "Tugfalol",
+        userDescription: "Temporada 28 // R100 // L340",
+        elogios: 5646,
+    },
 ];
+const shuffledSkins = [...mySkins].sort(() => Math.random() - 0.5);
 ---
 
 <section class="destiny-section">
@@ -94,7 +175,7 @@ const mySkins = [
         </p>
 
         <div class="skins-grid">
-            <Skin skinsToDisplay={mySkins} interactive={true} />
+            <Skin skinsToDisplay={shuffledSkins} interactive={true} />
         </div>
     </div>
 </section>
