@@ -196,9 +196,9 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
       hero.addEventListener("click", () => {
         const island = document.getElementById(`lightboxIsland-${uid}`);
         if (!island) return;
-        // Pasa todos los items (control selectivo por layout/indices)
         try {
           island.setAttribute("items", JSON.stringify(itemsData));
+          island.setAttribute("mode", "gallery"); // Force gallery mode
         } catch {}
         if (typeof island.open === "function") island.open();
         else island.setAttribute("open", "");
@@ -263,6 +263,7 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
         if (!island) return;
         try {
           island.setAttribute("items", JSON.stringify(itemsData));
+          island.setAttribute("mode", "gallery"); // Force gallery mode
         } catch {}
         if (typeof island.open === "function") island.open();
         else island.setAttribute("open", "");

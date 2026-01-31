@@ -12,26 +12,38 @@ interface SkinConfig {
   cameraLookAtX?: number;
   cameraLookAtY?: number;
   cameraLookAtZ?: number;
+  // Destiny Customization
+  rank?: string;
+  rankTitle?: string;
+  username?: string; // New field for customization
+  userDescription?: string; // e.g. "Temporada 28 // R30 // L329"
+  elogios?: number;
 }
 
 interface Props {
   skinsToDisplay: SkinConfig[];
+  interactive?: boolean;
 }
 
-const { skinsToDisplay = [] } = Astro.props;
+const { skinsToDisplay = [], interactive = false } = Astro.props;
+const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
-<div class="skin-viewers-container">
-  {skinsToDisplay.map((skin) => (
-    <canvas id={skin.id} style="pointer-events: none;"></canvas>
-  ))}
+<div id={containerId} class="skin-viewers-container">
+  {
+    skinsToDisplay.map((skin) => (
+      <div class="skin-item" data-skin-config={JSON.stringify(skin)}>
+        <canvas id={skin.id} style="pointer-events: none;" />
+      </div>
+    ))
+  }
 </div>
 
 <script
   is:inline
   src="https://cdn.jsdelivr.net/npm/skinview3d/bundles/skinview3d.bundle.js"
 ></script>
-<script define:vars={{ skinsToDisplay }}>
+<script define:vars={{ skinsToDisplay, containerId, interactive }}>
   /*
     - skinview3d.IdleAnimation() : Animación de inactividad.
     - skinview3d.WalkingAnimation() : Animación de caminar.
@@ -51,28 +63,97 @@ const { skinsToDisplay = [] } = Astro.props;
         skin: skinConfig.skinPath,
       });
 
-      skinViewer.animation = skinConfig.animation ? new skinview3d[skinConfig.animation]() : new skinview3d.IdleAnimation();
-      skinViewer.autoRotate = skinConfig.autoRotate !== undefined ? skinConfig.autoRotate : true;
-      skinViewer.cameraLight.intensity = skinConfig.cameraLightIntensity !== undefined ? skinConfig.cameraLightIntensity : 1.9;
-      skinViewer.globalLight.intensity = skinConfig.globalLightIntensity !== undefined ? skinConfig.globalLightIntensity : 2.4;
+      skinViewer.animation = skinConfig.animation
+        ? new skinview3d[skinConfig.animation]()
+        : new skinview3d.IdleAnimation();
+      skinViewer.autoRotate =
+        skinConfig.autoRotate !== undefined ? skinConfig.autoRotate : true;
+      skinViewer.cameraLight.intensity =
+        skinConfig.cameraLightIntensity !== undefined
+          ? skinConfig.cameraLightIntensity
+          : 1.9;
+      skinViewer.globalLight.intensity =
+        skinConfig.globalLightIntensity !== undefined
+          ? skinConfig.globalLightIntensity
+          : 2.4;
       skinViewer.camera.position.set(
-        skinConfig.cameraPositionX !== undefined ? skinConfig.cameraPositionX : 0,
-        skinConfig.cameraPositionY !== undefined ? skinConfig.cameraPositionY : 15,
-        skinConfig.cameraPositionZ !== undefined ? skinConfig.cameraPositionZ : 60
+        skinConfig.cameraPositionX !== undefined
+          ? skinConfig.cameraPositionX
+          : 0,
+        skinConfig.cameraPositionY !== undefined
+          ? skinConfig.cameraPositionY
+          : 15,
+        skinConfig.cameraPositionZ !== undefined
+          ? skinConfig.cameraPositionZ
+          : 60,
       );
       skinViewer.camera.lookAt(
         skinConfig.cameraLookAtX !== undefined ? skinConfig.cameraLookAtX : 0,
         skinConfig.cameraLookAtY !== undefined ? skinConfig.cameraLookAtY : 10,
-        skinConfig.cameraLookAtZ !== undefined ? skinConfig.cameraLookAtZ : 0
-      );
-
-      console.log(
-        `skinViewer para ${skinConfig.id} inicializado con ${skinViewer.animation.constructor.name}.`,
-      );
-    } else {
-      console.error(
-        `No se encontró el elemento canvas con id: ${skinConfig.id}`,
+        skinConfig.cameraLookAtZ !== undefined ? skinConfig.cameraLookAtZ : 0,
       );
     }
   });
+
+  // Handle clicks - Scoped to this container only
+  const container = document.getElementById(containerId);
+  if (container && interactive) {
+    const skinItems = container.querySelectorAll(".skin-item");
+    skinItems.forEach((item) => {
+      item.addEventListener("click", (e) => {
+        // Stop propagation to prevent bubbling issues
+        e.stopPropagation();
+
+        try {
+          const config = JSON.parse(item.getAttribute("data-skin-config"));
+          const lightbox = document.querySelector("lightbox-island");
+
+          if (lightbox) {
+            // Set mode to destiny
+            lightbox.setAttribute("mode", "destiny");
+
+            const itemData = {
+              id: config.id,
+              src: config.skinPath,
+              title: "Guardian",
+              subtitle: "Destiny View",
+              ...config,
+            };
+
+            lightbox.setAttribute("items", JSON.stringify([itemData]));
+
+            if (typeof lightbox.open === "function") {
+              lightbox.open();
+            } else {
+              lightbox.setAttribute("open", "");
+            }
+          } else {
+            console.warn("Lightbox component not found");
+          }
+        } catch (e) {
+          console.error("Error opening skin lightbox:", e);
+        }
+      });
+    });
+  }
 </script>
+
+<style>
+  .skin-viewers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+  }
+  .skin-item {
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      filter 0.2s ease;
+  }
+  .skin-item:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.4));
+  }
+</style>

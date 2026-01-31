@@ -40,7 +40,9 @@
     return new Promise((resolve) => {
       (function check() {
         if (window.gsap && window.ScrollTrigger) {
-          try { window.gsap.registerPlugin(window.ScrollTrigger); } catch {}
+          try {
+            window.gsap.registerPlugin(window.ScrollTrigger);
+          } catch {}
           resolve();
         } else if (Date.now() - start < timeout) {
           setTimeout(check, 50);
@@ -241,37 +243,53 @@
     }
 
     // 3. Animación de entrada de los bloques
-    entryTimeline.to(logoText, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power3.out",
-    }, "<0.2");
-
-    entryTimeline.to(title, {
-      opacity: 1,
-      y: 0,
-      duration: 0.7,
-      ease: "power3.out",
-    }, "<0.1");
-
-    if (paragraphs && paragraphs.length) {
-      entryTimeline.to(paragraphs, {
+    entryTimeline.to(
+      logoText,
+      {
         opacity: 1,
         y: 0,
         duration: 0.6,
         ease: "power3.out",
-        stagger: 0.06,
-      }, "<0.1");
+      },
+      "<0.2",
+    );
+
+    entryTimeline.to(
+      title,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: "power3.out",
+      },
+      "<0.1",
+    );
+
+    if (paragraphs && paragraphs.length) {
+      entryTimeline.to(
+        paragraphs,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.06,
+        },
+        "<0.1",
+      );
     }
 
     if (skinBlock) {
-      entryTimeline.to(skinBlock, {
-        opacity: 1,
-        scale: 1,
-        duration: 0.8,
-        ease: "back.out(1.2)",
-      }, "<0.15");
+      entryTimeline.to(
+        skinBlock,
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "back.out(1.2)",
+        },
+        "<0.15",
+      );
     }
 
     // console.log("Segunda timeline activada completamente");
@@ -299,7 +317,10 @@
 
     // Forzar render inmediato del primer frame y configurar animación principal
     if (window.gsap) {
-      window.gsap.set("#frames-animation", { opacity: 1, immediateRender: true });
+      window.gsap.set("#frames-animation", {
+        opacity: 1,
+        immediateRender: true,
+      });
       showFrame(0);
       setupMainAnimation();
     }
@@ -438,7 +459,7 @@
           duration: 2,
           ease: "power2.inOut",
         },
-        0.7
+        0.7,
       )
       .to(
         "#hero-key",

@@ -1,13 +1,8 @@
 ---
-import Skin from "../components/skin.astro";
 import Contenido3 from "../components/contenido3.astro";
 import Galeria from "../components/Galeria.astro";
-import EnDesarrollo from "../components/EnDesarrollo.astro";
 
 // Import assets
-import Bondio from "../assets/Bondio.png";
-import Paco from "../assets/paco.png";
-import Deivi from "../assets/deivi.png";
 import Cocospawn from "../assets/Cocospawn.png";
 import CentroPlots from "../assets/centroplots.png";
 import EstatuaLaus from "../assets/estatuaLaus.png";
@@ -15,51 +10,11 @@ import TorreBrujo from "../assets/torrebrujo.png";
 import Bar from "../assets/bar.png";
 import Dragones from "../assets/dragones.png";
 import PolloWow from "../assets/pollowow.png";
-
-const mySkins = [
-  {
-    id: "my_first_skin1",
-    skinPath: Bondio.src,
-    animation: "WaveAnimation",
-    autoRotate: false,
-    cameraLightIntensity: 2.0,
-    globalLightIntensity: 2.5,
-    cameraPositionX: 0,
-    cameraPositionY: 15,
-    cameraPositionZ: 60,
-    cameraLookAtX: 0,
-    cameraLookAtY: 10,
-    cameraLookAtZ: 0,
-  },
-  {
-    id: "my_first_skin2",
-    skinPath: Paco.src,
-    animation: "HitAnimation",
-    autoRotate: false,
-    cameraLightIntensity: 2.0,
-    globalLightIntensity: 2.5,
-    cameraPositionX: 0,
-    cameraPositionY: 15,
-    cameraPositionZ: 60,
-    cameraLookAtX: 0,
-    cameraLookAtY: 10,
-    cameraLookAtZ: 0,
-  },
-  {
-    id: "my_first_skin3",
-    skinPath: Deivi.src,
-    animation: "WaveAnimation",
-    autoRotate: false,
-    cameraLightIntensity: 2.0,
-    globalLightIntensity: 2.5,
-    cameraPositionX: 0,
-    cameraPositionY: 15,
-    cameraPositionZ: 60,
-    cameraLookAtX: 0,
-    cameraLookAtY: 10,
-    cameraLookAtZ: 0,
-  },
-];
+import Ramdis from "../assets/ramdis.png";
+import Erebor from "../assets/erebor.png";
+import ElArbol from "../assets/elarbol.png";
+import Coliseo from "../assets/coliseo.png";
+import Caballero from "../assets/caballero.png";
 
 // Definir los elementos de la galería
 const galleryItems = [
@@ -105,6 +60,36 @@ const galleryItems = [
     src: PolloWow,
     title: "Algo esconde en su interior",
     subtitle: "pollo wow",
+  },
+  {
+    id: "gallery-7",
+    src: Ramdis,
+    title: "Ramdis",
+    subtitle: "Ciudad flotante",
+  },
+  {
+    id: "gallery-8",
+    src: Erebor,
+    title: "Erebor",
+    subtitle: "Montaña solitaria",
+  },
+  {
+    id: "gallery-9",
+    src: ElArbol,
+    title: "El Árbol",
+    subtitle: "Naturaleza ancestral",
+  },
+  {
+    id: "gallery-10",
+    src: Coliseo,
+    title: "Coliseo",
+    subtitle: "Arena de combate",
+  },
+  {
+    id: "gallery-11",
+    src: Caballero,
+    title: "Caballero",
+    subtitle: "Guardia real",
   },
 ];
 
@@ -175,18 +160,16 @@ const galleryLayout = [
           manteniendo esos principios y fomentando la diversión en la comunidad.
         </p>
       </div>
-      <div class="skin-component">
-        <Skin skinsToDisplay={mySkins} />
-      </div>
     </div>
   </div>
-
   <h2
     style="text-align: left; padding-left: 250px; margin-bottom: 10px; color: #ff6b00; font-size: 2.0rem;"
   >
     Britannia en cococraft
   </h2>
-  <!-- Sección de Galería 
+</main>
+
+<!-- Sección de Galería 
   <section class="gallery-section" style="margin-top: 80px; padding: 0 20px;">
     <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px 0;">
       {galleryItems.slice(1).map((item, index) => (
@@ -232,7 +215,6 @@ const galleryLayout = [
       ))}
     </div>
   </section> !-->
-</main>
 
 <!-- Galería de Lightbox -->
 <div>
@@ -303,10 +285,6 @@ const galleryLayout = [
   // Hacer la función accesible globalmente para compatibilidad
   window.openLightbox = openLightbox;
 </script>
-
-<div style="margin-top: 160px; position: relative; z-index: 101;">
-  <EnDesarrollo />
-</div>
 
 <style>
   .gallery-item {

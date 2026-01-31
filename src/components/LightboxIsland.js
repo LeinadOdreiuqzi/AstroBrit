@@ -1,6 +1,8 @@
+import { DestinyLayout } from './DestinyLayout.js';
+
 class LightboxIsland extends HTMLElement {
   static get observedAttributes() {
-    return ["open", "items", "indices", "layout", "caption"];
+    return ["open", "items", "indices", "layout", "caption", "mode"];
   }
 
   constructor() {
@@ -11,6 +13,7 @@ class LightboxIsland extends HTMLElement {
     this._indices = null; // optional: array of positions to render
     this._layout = null; // optional: array of { index, className }
     this._caption = "";
+    this._mode = "gallery"; // "gallery" or "destiny"
     this._prevFocus = null;
     this._contentEl = null;
     this._wheelHandler = null;
@@ -52,6 +55,9 @@ class LightboxIsland extends HTMLElement {
       this._render();
     } else if (name === "caption") {
       this._caption = value || "";
+      this._render();
+    } else if (name === "mode") {
+      this._mode = value || "gallery";
       this._render();
     }
   }
@@ -196,13 +202,28 @@ class LightboxIsland extends HTMLElement {
   }
 
   _render() {
-    const items = this._getRenderableItems();
+    const items = this._getRenderableItems(); // logic used by gallery mode
     const first = items[0] && (items[0].data || items[0]);
     const rest = items.slice(1);
+
+    if (this._mode === "destiny") {
+      // --- DESTINY MODE RENDER ---
+      const item = (items[0] && items[0].data) || {};
+      const src = item.src || item.skinPath || "/assets/servi.webp";
+      const { rank, rankTitle, userDescription, elogios, username } = item;
+
+      this.shadowRoot.innerHTML = DestinyLayout.getHTML({ src, rank, rankTitle, userDescription, elogios, username });
+      DestinyLayout.init(this.shadowRoot, { src }, this._onClose);
+      this._contentEl = null;
+      return;
+    }
+
+    // === EXISTING GALLERY MODE RENDER ===
+
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: contents; }
-        .lightbox { position: fixed; inset: 0; background: radial-gradient(1200px 80% at 50% 40%, rgba(255,128,0,0.08) 0%, rgba(32,16,8,0.96) 60%, rgba(24,12,6,0.98) 100%); backdrop-filter: blur(6px); display: flex; flex-direction: column; height: 100vh; width: 100vw; z-index: 1000; overflow: hidden; }
+        .lightbox { position: fixed; inset: 0; background: radial-gradient(1200px 80% at 50% 40%, rgba(255,128,0,0.08) 0%, rgba(32,16,8,0.96) 60%, rgba(24,12,6,0.98) 100%); backdrop-filter: blur(6px); display: flex; flex-direction: column; height: 100vh; width: 100vw; z-index: 10000; overflow: hidden; }
         .lightbox[hidden] { display: none; }
         .lightbox-close { align-self: flex-end; margin: 16px; appearance: none; border: none; background: rgba(255,255,255,.15); color: #fff; font-size: 22px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
         
