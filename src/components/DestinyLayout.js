@@ -1,11 +1,11 @@
 export const DestinyLayout = {
-    getHTML(data) {
-        const { src, rank, rankTitle, userDescription, elogios, username } = data;
-        const safeDesc = userDescription || "Temporada 28 // R1 // L0";
-        const safeElogios = elogios || "0";
-        const safeUsername = username || "cabotercero";
+   getHTML(data) {
+      const { src, rank, rankTitle, userDescription, elogios, username } = data;
+      const safeDesc = userDescription || "Temporada 28 // R1 // L0";
+      const safeElogios = elogios || "0";
+      const safeUsername = username || "cabotercero";
 
-        return `
+      return `
       <style>
         :host { display: contents; }
         .lightbox { 
@@ -184,7 +184,7 @@ export const DestinyLayout = {
                      <div class="container-col">
                         <span class="section-header">Títulos</span>
                         <div class="card">
-                           <div class="card-icon" style="background: url('/assets/icons/title_icon.png') center/cover; background-color:#333;"></div>
+                           <div class="card-icon" style="display: flex; align-items: center; justify-content: center; background-color:#333; font-size: 2rem;"></div>
                            <span class="card-title">Señor de Hierro</span>
                         </div>
                      </div>
@@ -206,34 +206,45 @@ export const DestinyLayout = {
          </div>
       </div>
     `;
-    },
+   },
 
-    init(shadowRoot, data, onClose) {
-        const { src } = data;
-        const closeBtn = shadowRoot.querySelector(".box-close");
-        closeBtn?.addEventListener("click", onClose);
+   init(shadowRoot, data, onClose) {
+      const { src } = data;
+      const closeBtn = shadowRoot.querySelector(".box-close");
+      closeBtn?.addEventListener("click", onClose);
 
-        setTimeout(() => {
+      return new Promise((resolve) => {
+         setTimeout(async () => {
             const canvas = shadowRoot.getElementById("destiny-canvas");
             if (canvas && window.skinview3d) {
-                try {
-                    const viewer = new skinview3d.SkinViewer({
-                        canvas: canvas,
-                        width: 450,
-                        height: 700,
-                        skin: src
-                    });
-                    viewer.animation = new skinview3d.IdleAnimation();
-                    viewer.camera.position.set(0, 15, 55);
-                    viewer.camera.lookAt(0, 15, 0);
-                    viewer.autoRotate = true;
-                    viewer.autoRotateSpeed = 0.6;
-                    viewer.globalLight.intensity = 2.4;
-                    viewer.cameraLight.intensity = 2.0;
-                } catch (e) {
-                    console.error("Failed to init destinySection skin viewer", e);
-                }
+               let viewer = null;
+               try {
+                  viewer = new skinview3d.SkinViewer({
+                     canvas: canvas,
+                     width: 450,
+                     height: 700
+                  });
+
+                  viewer.animation = new skinview3d.IdleAnimation();
+                  viewer.camera.position.set(0, 15, 55);
+                  viewer.camera.lookAt(0, 15, 0);
+                  viewer.autoRotate = true;
+                  viewer.autoRotateSpeed = 0.6;
+                  viewer.globalLight.intensity = 2.4;
+                  viewer.cameraLight.intensity = 2.0;
+
+                  // Explicitly load the skin and catch errors
+                  await viewer.loadSkin(src);
+                  resolve(viewer);
+               } catch (e) {
+                  console.error("DestinyLayout: Skin load failed or init error", e);
+                  if (viewer) viewer.dispose();
+                  resolve(null);
+               }
+            } else {
+               resolve(null);
             }
-        }, 50);
-    }
+         }, 50);
+      });
+   }
 };

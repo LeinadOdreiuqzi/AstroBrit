@@ -58,12 +58,22 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
     const canvasElement = document.getElementById(skinConfig.id);
     if (!canvasElement) return null;
 
-    const skinViewer = new skinview3d.SkinViewer({
-      canvas: canvasElement,
-      width: 200,
-      height: 300,
-      skin: skinConfig.skinPath,
-    });
+    let skinViewer;
+    try {
+      skinViewer = new skinview3d.SkinViewer({
+        canvas: canvasElement,
+        width: 200,
+        height: 300,
+      });
+
+      // Explicitly load skin and catch every possible error
+      skinViewer.loadSkin(skinConfig.skinPath).catch((e) => {
+        console.error("Grid skin load failed:", e);
+      });
+    } catch (e) {
+      console.error("Failed to create SkinViewer:", e);
+      return null;
+    }
 
     // Fix for: Uncaught TypeError: skinview3d[skinConfig.animation] is not a constructor
     if (

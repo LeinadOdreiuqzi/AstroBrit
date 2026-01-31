@@ -23,6 +23,7 @@ class LightboxIsland extends HTMLElement {
     this._scrollRaf = 0;
     this._fullEl = null;
     this._fullOpen = false;
+    this._destinyViewer = null;
 
     this._onKeydown = this._onKeydown.bind(this);
     this._onClose = this._onClose.bind(this);
@@ -91,6 +92,10 @@ class LightboxIsland extends HTMLElement {
     if (g && root) {
       g.to(root, {
         autoAlpha: 0, y: 18, duration: 0.35, ease: "power2.in", onComplete: () => {
+          if (this._destinyViewer) {
+            this._destinyViewer.dispose();
+            this._destinyViewer = null;
+          }
           document.documentElement.classList.remove("lb-open");
           document.body.classList.remove("lb-open");
           this.removeAttribute("open");
@@ -101,7 +106,10 @@ class LightboxIsland extends HTMLElement {
           g.set(root, { clearProps: "opacity,transform" });
         }
       });
-    } else {
+      if (this._destinyViewer) {
+        this._destinyViewer.dispose();
+        this._destinyViewer = null;
+      }
       document.documentElement.classList.remove("lb-open");
       document.body.classList.remove("lb-open");
       this.removeAttribute("open");
@@ -213,7 +221,17 @@ class LightboxIsland extends HTMLElement {
       const { rank, rankTitle, userDescription, elogios, username } = item;
 
       this.shadowRoot.innerHTML = DestinyLayout.getHTML({ src, rank, rankTitle, userDescription, elogios, username });
-      DestinyLayout.init(this.shadowRoot, { src }, this._onClose);
+
+      this._destinyLoading = true;
+      DestinyLayout.init(this.shadowRoot, { src }, this._onClose).then(viewer => {
+        this._destinyLoading = false;
+        // RACE CONDITION: If the lightbox was closed while we were loading, dispose immediately
+        if (!this.hasAttribute("open") || this._mode !== "destiny") {
+          if (viewer) viewer.dispose();
+          return;
+        }
+        this._destinyViewer = viewer;
+      });
       this._contentEl = null;
       return;
     }
