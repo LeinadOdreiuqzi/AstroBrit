@@ -323,6 +323,8 @@
       });
       showFrame(0);
       setupMainAnimation();
+      // Forzar refresco después de configurar todos los disparadores y pins
+      ScrollTrigger.refresh();
     }
   });
 
@@ -452,7 +454,6 @@
         },
         0.8,
       )
-      // Hacer que el logo vuelva a aparecer después de la animación de la máscara
       .to(
         ".logo-text",
         {
@@ -462,18 +463,46 @@
         },
         0.6,
       );
-  }
 
-  // Animaciones adicionales (mantener solo las que no son repetitivas)
-  waitForGSAP().then(() => {
-    if (window.gsap) {
-      window.gsap.to(".keep-scrolling", {
+    // Configurar .keep-scrolling después de la pin principal
+    const keepScrolling = document.querySelector(".keep-scrolling");
+    if (keepScrolling) {
+      // Reemplazo de la animación CSS bounce-pulse - Guardamos la referencia
+      const bounceAnim = gsap.to(keepScrolling, {
         y: -5,
-        duration: 1,
+        scale: 1,
+        opacity: 1,
+        duration: 1.2,
         repeat: -1,
         yoyo: true,
         ease: "power2.inOut",
+        startAt: { scale: 0.85, opacity: 0.8 },
+      });
+
+      // Esconder al llegar al footer con mayor control
+      ScrollTrigger.create({
+        trigger: "footer",
+        start: "top bottom",
+        onEnter: () => {
+          bounceAnim.pause();
+          gsap.to(keepScrolling, {
+            opacity: 0,
+            scale: 0.5,
+            pointerEvents: "none",
+            duration: 0.4,
+          });
+        },
+        onLeaveBack: () => {
+          gsap.to(keepScrolling, {
+            opacity: 1,
+            scale: 1,
+            pointerEvents: "auto",
+            duration: 0.4,
+            onComplete: () => bounceAnim.play(),
+          });
+        },
+        invalidateOnRefresh: true,
       });
     }
-  });
+  }
 </script>

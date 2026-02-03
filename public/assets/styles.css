@@ -278,7 +278,7 @@ body {
   transform: translateX(-50%);
   color: #ff6b00;
   filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
-  animation: bounce-pulse 2s ease-in-out infinite;
+  /* animation: bounce-pulse 2s ease-in-out infinite; */
   z-index: 40;
 }
 
