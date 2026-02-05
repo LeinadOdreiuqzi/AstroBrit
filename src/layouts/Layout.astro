@@ -1,25 +1,72 @@
---- 
-import Footer from '../components/Footer.astro';
+---
+import Footer from "../components/Footer.astro";
 ---
 
 <html lang="es">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/png" href="/assets/Theeye.png?v=2" sizes="32x32" />
+		<link
+			rel="icon"
+			type="image/png"
+			href="/assets/Theeye.png?v=2"
+			sizes="32x32"
+		/>
 		<link rel="shortcut icon" href="/assets/Theeye.png?v=2" />
 		<link rel="apple-touch-icon" href="/assets/Theeye.png?v=2" />
+
+		<!-- SEO Meta Tags -->
+		<title>BritanniaMC - Comunidad de Minecraft Towny</title>
+		<meta
+			name="description"
+			content="BritanniaMC: Comunidad de Minecraft Towny, descubre nuestra historia, proyectos y construcciones."
+		/>
+		<meta
+			name="keywords"
+			content="Minecraft, BritanniaMC, Cococraft, Comunidad Minecraft, Servidor Minecraft, Construcción Minecraft, Minecraft Towny, Towny"
+		/>
+		<meta name="author" content="BritanniaMC Team" />
+		<meta name="robots" content="index, follow" />
+		<link rel="canonical" href="https://britanniamc.com/" />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://britanniamc.com/" />
+		<meta
+			property="og:title"
+			content="BritanniaMC - Comunidad de Minecraft Towny"
+		/>
+		<meta
+			property="og:description"
+			content="Explora Britannia en Cococraft: Galería de construcciones, miembros destacados y proyectos masivos."
+		/>
+		<meta property="og:image" content="/assets/Theeye.png" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://britanniamc.com/" />
+		<meta
+			property="twitter:title"
+			content="BritanniaMC - Comunidad de Minecraft Towny"
+		/>
+		<meta
+			property="twitter:description"
+			content="BritanniaMC: Comunidad de Minecraft Towny, descubre nuestra historia, proyectos y construcciones."
+		/>
+		<meta property="twitter:image" content="/assets/Theeye.png" />
+
 		<meta name="generator" content={Astro.generator} />
 		<link rel="stylesheet" href="/assets/styles.css" />
-		<title>BritanniaMC</title>
 		<!-- GSAP CDN for production (static hosting) -->
-		<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
-		<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"
+			defer></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"
+			defer></script>
 	</head>
 	<body>
 		<slot />
 		<Footer />
-	</body>	
+	</body>
 </html>
-
-
