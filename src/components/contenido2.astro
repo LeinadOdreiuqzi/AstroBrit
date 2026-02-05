@@ -1,145 +1,15 @@
 ---
-import Contenido3 from "../components/contenido3.astro";
 import Galeria from "../components/Galeria.astro";
-
-// Import assets
-import Cocospawn from "../assets/Cocospawn.png";
-import CentroPlots from "../assets/centroplots.png";
-import EstatuaLaus from "../assets/estatuaLaus.png";
-import TorreBrujo from "../assets/torrebrujo.png";
-import Bar from "../assets/bar.png";
-import Dragones from "../assets/dragones.png";
-import PolloWow from "../assets/pollowow.png";
-import Ramdis from "../assets/ramdis.png";
-import Erebor from "../assets/erebor.png";
-import ElArbol from "../assets/elarbol.png";
-import Coliseo from "../assets/coliseo.png";
-import Caballero from "../assets/caballero.png";
-
-// Definir los elementos de la galería
-const galleryItems = [
-  {
-    id: "hero-image",
-    src: Cocospawn,
-    title: "EL CORAZÓN DE BRITANNIA",
-    subtitle:
-      "Los años pasan, pero el Ojo sigue siendo el símbolo eterno en el centro de la ciudad. Bajo su mirada incansable, Britannia se mantiene viva: veteranos y recién llegados se encuentran aquí para comenzar nuevas aventuras y fortalecer la historia de la comunidad. <br> Hay lugar para todos:  Los relatos compartidos entre amigos y las tradiciones que nos mantienen unidos cada año. El Ojo observa y protege, inspirando a todos los que pisan esta ciudad legendaria.",
-  },
-  {
-    id: "gallery-1",
-    src: CentroPlots,
-    title: "Centro de la ciudad",
-    subtitle: "Centro de la ciudad",
-  },
-  {
-    id: "gallery-2",
-    src: EstatuaLaus,
-    title: "Estatua de laus",
-    subtitle: "",
-  },
-  {
-    id: "gallery-3",
-    src: TorreBrujo,
-    title: "Torre del Brujo",
-    subtitle: "Hogar del brujo",
-  },
-  {
-    id: "gallery-4",
-    src: Bar,
-    title: "Bar",
-    subtitle: "Área de recreación",
-  },
-  {
-    id: "gallery-5",
-    src: Dragones,
-    title: "estatuas de dragones del antiguo spawn",
-    subtitle: "Antiguo spawn",
-  },
-  {
-    id: "gallery-6",
-    src: PolloWow,
-    title: "Algo esconde en su interior",
-    subtitle: "pollo wow",
-  },
-  {
-    id: "gallery-7",
-    src: Ramdis,
-    title: "Ramdis",
-    subtitle: "Ciudad flotante",
-  },
-  {
-    id: "gallery-8",
-    src: Erebor,
-    title: "Erebor",
-    subtitle: "Montaña solitaria",
-  },
-  {
-    id: "gallery-9",
-    src: ElArbol,
-    title: "El Árbol",
-    subtitle: "Naturaleza ancestral",
-  },
-  {
-    id: "gallery-10",
-    src: Coliseo,
-    title: "Coliseo",
-    subtitle: "Arena de combate",
-  },
-  {
-    id: "gallery-11",
-    src: Caballero,
-    title: "Caballero",
-    subtitle: "Guardia real",
-  },
-];
-
-const galleryItemsHero2 = [
-  {
-    id: "hero-brujo",
-    src: TorreBrujo,
-    title: "TORRE DEL BRUJO",
-    subtitle: "Vista principal",
-  },
-  {
-    id: "brujo-1",
-    src: Bar,
-    title: "Bar",
-    subtitle: "Zona social",
-  },
-  {
-    id: "brujo-2",
-    src: CentroPlots,
-    title: "Centro de la ciudad",
-    subtitle: "",
-  },
-  {
-    id: "brujo-3",
-    src: Dragones,
-    title: "Dragones",
-    subtitle: "",
-  },
-];
-
-// Definir el layout personalizado para la galería
-const galleryLayout = [
-  { index: 0, className: "ms-3" }, // Imagen principal más grande
-  { index: 1, className: "ms-2" }, // Imagen secundaria
-  { index: 2, className: "ms-1" }, // Imagen pequeña
-  { index: 3, className: "ms-2" }, // Imagen mediana
-  { index: 4, className: "ms-1" }, // Imagen pequeña
-  { index: 5, className: "ms-2" }, // Imagen mediana
-];
+import { galleryItems, galleryLayout } from "../data/galleryData.js";
 ---
 
-<main>
-  <header>
-    <div class="logo-text"></div>
-  </header>
+<section class="info-section section-container">
   <div class="two-column-layout">
-    <div class="left-column">
-      <div class="main-content">
-        <h1>¡Bienvenidos a Britannia!</h1>
-        <p>Un poco de historia.</p>
+    <div class="main-content">
+      <h1>¡Bienvenidos a Britannia!</h1>
+      <p class="subtitle">Un poco de historia.</p>
+
+      <div class="history-text">
         <p>
           La comunidad de Britannia nace en el año 2017, cuando un usuario;
           ElGabyMC junto a su hermano Bondio. Crearon una ciudad en un servidor,
@@ -162,70 +32,18 @@ const galleryLayout = [
       </div>
     </div>
   </div>
-  <h2
-    style="text-align: left; padding-left: 250px; margin-bottom: 10px; color: #ff6b00; font-size: 2.0rem;"
-  >
-    Britannia en cococraft
-  </h2>
-</main>
+</section>
 
-<!-- Sección de Galería 
-  <section class="gallery-section" style="margin-top: 80px; padding: 0 20px;">
-    <div class="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px 0;">
-      {galleryItems.slice(1).map((item, index) => (
-        <div 
-          class="gallery-item" 
-          style="
-            position: relative; 
-            overflow: hidden; 
-            border-radius: 10px; 
-            cursor: pointer;
-            aspect-ratio: 4/3;
-            transition: transform 0.3s ease;
-          "
-          data-gallery-item
-          data-index={index + 1}
-          class="gallery-item"
-        >
-          <img 
-            src={item.src} 
-            alt={item.title}
-            style="
-              width: 100%; 
-              height: 100%; 
-              object-fit: cover;
-              transition: transform 0.3s ease;
-            "
-          />
-          <div 
-            style="
-              position: absolute; 
-              bottom: 0; 
-              left: 0; 
-              right: 0; 
-              background: linear-gradient(transparent, rgba(0,0,0,0.7)); 
-              padding: 15px;
-              color: white;
-            "
-          >
-            <h3 style="margin: 0 0 5px 0; font-size: 1.1rem;">{item.title}</h3>
-            <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">{item.subtitle}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section> !-->
+<section class="gallery-title-section section-container">
+  <h2 class="section-title">Britannia en Cococraft</h2>
+</section>
 
-<!-- Galería de Lightbox -->
-<div>
-  <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
-</div>
+<section class="gallery-section">
+  <div class="section-container no-padding-y">
+    <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
+  </div>
+</section>
 
-<!-- <div style="margin-top: 40px;">
-  <Galeria items={galleryItemsHero2} variant="hero" caption="Torre del Brujo" />
-</div> -->
-
-<!-- Script para manejar la apertura del lightbox -->
 <script>
   // Definir la interfaz para el elemento lightbox personalizado
   interface LightboxElement extends HTMLElement {
@@ -246,9 +64,9 @@ const galleryLayout = [
       "lightbox-island",
     ) as LightboxElement | null;
     if (lightbox) {
-      // Asegurarse de que el layout se mantenga pero resaltar el ítem clickeado
-      const layout = JSON.parse(lightbox.getAttribute("layout") || "[]");
-      // Reorganizar el layout para que el ítem clickeado sea el primero después del hero
+      const layoutStr = lightbox.getAttribute("layout");
+      const layout = layoutStr ? JSON.parse(layoutStr) : [];
+
       if (index > 0) {
         const clickedItem = layout.find((item: any) => item.index === index);
         if (clickedItem) {
@@ -282,122 +100,74 @@ const galleryLayout = [
     });
   });
 
-  // Hacer la función accesible globalmente para compatibilidad
   window.openLightbox = openLightbox;
 </script>
 
 <style>
-  .gallery-item {
-    transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
+  .info-section {
+    padding-bottom: var(--space-md);
   }
 
-  .gallery-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  .no-padding-y {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
-  .gallery-item img {
-    transition: transform 0.3s ease;
+  .gallery-title-section {
+    padding-top: var(--space-lg);
+    padding-bottom: var(--space-sm);
   }
 
-  .gallery-item:hover img {
-    transform: scale(1.05);
-  }
-
-  .gallery-section {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 40px 0;
-    border-radius: 15px;
-    margin: 60px 20px 0;
-  }
-
-  @media (max-width: 768px) {
-    .gallery-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-    }
+  .section-title {
+    color: var(--color-primary);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   .two-column-layout {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: var(--space-md);
     align-items: start;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 16px;
   }
-  .left-column {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+
   .main-content {
-    max-width: 860px;
-    margin: 0 auto;
-  }
-  .right-column img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 12px;
-  }
-  .skin-component {
-    margin-top: 24px;
-    width: 100%;
-    max-width: 860px;
-    margin-left: auto;
-    margin-right: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .skin-viewers-container {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
     max-width: 860px;
     margin: 0 auto;
   }
 
   .main-content h1 {
-    font-size: clamp(1.6rem, 3.6vw, 2.4rem);
-    line-height: 1.2;
-    margin: 0 0 8px;
-  }
-  .main-content p {
-    font-size: clamp(0.95rem, 2.2vw, 1.05rem);
-    line-height: 1.6;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    margin-bottom: var(--space-sm);
+    color: var(--color-primary);
+    text-shadow: 0 0 30px rgba(255, 107, 0, 0.4);
   }
 
-  @media (max-width: 1024px) {
-    .two-column-layout {
-      gap: 16px;
-    }
+  .subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: bold;
+    margin-bottom: var(--space-md);
+    opacity: 0.9;
   }
-  @media (min-width: 1280px) {
-    .two-column-layout {
-      max-width: 1200px;
-      gap: 18px;
-    }
+
+  .history-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
   }
-  @media (max-width: 768px) {
-    .two-column-layout {
-      gap: 16px;
-    }
-    .main-content h1 {
-      font-size: clamp(1.4rem, 6vw, 2rem);
-    }
-    .main-content p {
-      font-size: clamp(0.9rem, 4.2vw, 1rem);
-    }
+
+  .history-text p {
+    font-size: clamp(1rem, 2.2vw, 1.1rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
   }
-  @media (max-width: 480px) {
+
+  @media (min-width: 1024px) {
     .two-column-layout {
-      gap: 12px;
+      grid-template-columns: 1fr; /* Keep it single column as per previous design but cleaner */
     }
   }
 </style>
@@ -407,70 +177,31 @@ const galleryLayout = [
     const gs = window.gsap;
     const ST = window.ScrollTrigger;
     if (!gs) return;
-    const mc = document.querySelector(".main-content");
-    const skins = document.querySelector(".skin-component");
 
-    const animateText = () => {
-      if (!mc) return;
-      const children = Array.from(mc.children);
-      gs.to(children, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.08,
-        ease: "power3.out",
-      });
-    };
-    const animateSkins = () => {
-      if (!skins) return;
-      gs.to(skins, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.7,
-        ease: "power3.out",
-      });
-    };
+    const reveals = document.querySelectorAll(
+      ".main-content > *, .section-title",
+    );
 
-    if (mc) gs.set(mc.children, { opacity: 0, y: 24 });
-    if (skins) gs.set(skins, { opacity: 0, y: 24, scale: 0.98 });
-
-    if (ST && gs.registerPlugin) {
+    if (reveals.length && ST && gs.registerPlugin) {
       try {
         gs.registerPlugin(ST);
       } catch {}
-      if (mc)
-        gs.to(mc.children, {
+
+      gs.set(reveals, { opacity: 0, y: 30 });
+
+      reveals.forEach((el) => {
+        gs.to(el, {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          stagger: 0.08,
+          duration: 0.8,
           ease: "power3.out",
-          scrollTrigger: { trigger: mc, start: "top 80%", once: true },
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+            once: true,
+          },
         });
-      if (skins)
-        gs.to(skins, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          scrollTrigger: { trigger: skins, start: "top 80%", once: true },
-        });
-    } else {
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            if (mc && entry.target === mc) animateText();
-            if (skins && entry.target === skins) animateSkins();
-            io.unobserve(entry.target);
-          });
-        },
-        { threshold: 0.2 },
-      );
-      if (mc) io.observe(mc);
-      if (skins) io.observe(skins);
+      });
     }
   });
 </script>

@@ -1,172 +1,9 @@
 ---
 import Skin from "./skin.astro";
-
-// Import assets
-import Bondio from "../assets/Bondio.png";
-import Paco from "../assets/paco.png";
-import Deivi from "../assets/deivi.png";
-import guiso from "../assets/guiso.png";
-import tugfabrit from "../assets/tugfabrit.png";
-import embio from "../assets/embio.png";
-import papita from "../assets/papita.png";
-import omsijepse from "../assets/OmsijepseBritannico.png";
-const mySkins = [
-    {
-        id: "my_first_skin1",
-        skinPath: Bondio.src,
-        animation: "WaveAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "11",
-        rankTitle: "Leyenda",
-        username: "Bondio",
-        userDescription: "Temporada 28 // R30 // L329",
-        elogios: 8500,
-    },
-    {
-        id: "my_first_skin2",
-        skinPath: Paco.src,
-        animation: "HitAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "7",
-        rankTitle: "Elite",
-        username: "PacooooMC",
-        userDescription: "Temporada 28 // R55 // L335",
-        elogios: 1240,
-    },
-    {
-        id: "my_first_skin3",
-        skinPath: Deivi.src,
-        animation: "WaveAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "5",
-        rankTitle: "Rango papu",
-        username: "iDeivid_2",
-        userDescription: "Temporada 28 // R10 // L310",
-        elogios: 420,
-    },
-    {
-        id: "my_first_skin4",
-        skinPath: omsijepse.src,
-        animation: "CrouchAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "11",
-        rankTitle: "Leyenda",
-        username: "Omsijepse",
-        userDescription: "Temporada 28 // R100 // L340",
-        elogios: 1448,
-    },
-    {
-        id: "my_first_skin5",
-        skinPath: guiso.src,
-        animation: "WaveAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "11",
-        rankTitle: "Leyenda",
-        username: "GuisoMaster",
-        userDescription: "Temporada 28 // R100 // L340",
-        elogios: 9001,
-    },
-    {
-        id: "my_first_skin6",
-        skinPath: embio.src,
-        animation: "",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "11",
-        rankTitle: "Leyenda",
-        username: "MR3mbiozz",
-        userDescription: "Temporada 28 // R100 // L340",
-        elogios: 1457,
-    },
-    {
-        id: "my_first_skin7",
-        skinPath: papita.src,
-        animation: "CrouchAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "7",
-        rankTitle: "Elite",
-        username: "Papitafritaxdd",
-        userDescription: "Temporada 28 // R100 // L340",
-        elogios: 124,
-    },
-    {
-        id: "my_first_skin8",
-        skinPath: tugfabrit.src,
-        animation: "StandAnimation",
-        autoRotate: false,
-        cameraLightIntensity: 2.0,
-        globalLightIntensity: 2.5,
-        cameraPositionX: 0,
-        cameraPositionY: 15,
-        cameraPositionZ: 60,
-        cameraLookAtX: 0,
-        cameraLookAtY: 10,
-        cameraLookAtZ: 0,
-        rank: "4",
-        rankTitle: "Aventurero",
-        username: "Tugfalol",
-        userDescription: "Temporada 28 // R100 // L340",
-        elogios: 6969,
-    },
-];
+import { memberSkins } from "../data/skinsData.js";
 ---
 
-<section class="destiny-section">
+<section class="destiny-section section-container">
     <div class="content-wrapper">
         <h2 class="section-title">Trayectoria Britannica</h2>
         <p class="section-subtitle">
@@ -174,13 +11,13 @@ const mySkins = [
         </p>
 
         <div class="skins-grid">
-            <Skin skinsToDisplay={mySkins} interactive={true} />
+            <Skin skinsToDisplay={memberSkins} interactive={true} />
         </div>
     </div>
 </section>
 
 <script>
-    // Client-side randomization to ensure fresh order on every visit in production
+    // Client-side randomization
     document.addEventListener("DOMContentLoaded", () => {
         const grid = document.querySelector(
             ".skins-grid .skin-viewers-container",
@@ -196,14 +33,11 @@ const mySkins = [
 <style>
     .destiny-section {
         position: relative;
-        padding: 80px 20px 20px;
         background: linear-gradient(
             to bottom,
-            #0a0a0a,
-            #111111
-        ); /* Dark transition */
-        color: #fff;
-        overflow: hidden;
+            var(--color-bg-dark),
+            var(--color-bg)
+        );
     }
 
     /* Subtle divider line at top */
@@ -223,8 +57,6 @@ const mySkins = [
     }
 
     .content-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
         text-align: center;
     }
 
@@ -233,8 +65,8 @@ const mySkins = [
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 2px;
-        margin-bottom: 12px;
-        background: linear-gradient(45deg, #fff, #aaa);
+        margin-bottom: var(--space-xs);
+        background: linear-gradient(45deg, #ff6b00, #ff7009);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -242,7 +74,7 @@ const mySkins = [
     .section-subtitle {
         font-size: 1.1rem;
         color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 60px;
+        margin-bottom: var(--space-xl);
         max-width: 600px;
         margin-left: auto;
         margin-right: auto;
@@ -251,7 +83,7 @@ const mySkins = [
     .skins-grid {
         display: flex;
         justify-content: center;
-        gap: 40px;
+        gap: var(--space-lg);
         flex-wrap: wrap;
     }
 </style>

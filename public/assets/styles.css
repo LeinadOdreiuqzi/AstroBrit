@@ -1,6 +1,7 @@
 @view-transition {
   navigation: auto;
 }
+
 /* Reset y estilos base */
 * {
   margin: 0;
@@ -10,11 +11,44 @@
 
 html,
 body {
-  background: #111;
+  /* Spacing System */
+  --space-xs: 0.5rem;
+  /* 8px */
+  --space-sm: 1rem;
+  /* 16px */
+  --space-md: 2rem;
+  /* 32px */
+  --space-lg: 4rem;
+  /* 64px */
+  --space-xl: 6rem;
+  /* 96px */
+  --space-xxl: 8rem;
+  /* 128px */
+
+  /* Section Spacing */
+  --section-padding-x: clamp(1rem, 5vw, 4rem);
+  --section-padding-y: clamp(4rem, 10vw, 8rem);
+  --section-max-width: 1200px;
+
+  /* Colors */
+  --color-primary: #ff6b00;
+  --color-bg: #111;
+  --color-bg-dark: #000;
+  --color-text: #fff;
+  --color-glass: rgba(128, 116, 116, 0.07);
+  --color-glass-border: rgba(128, 116, 116, 0.19);
+
+  background: var(--color-bg);
   overflow-x: hidden;
-  overscroll-behavior: none;
-  color: white;
+  color: var(--color-text);
   font-family: Arial, sans-serif;
+  width: 100%;
+}
+
+.section-container {
+  max-width: var(--section-max-width);
+  margin: 0 auto;
+  padding: var(--section-padding-y) var(--section-padding-x);
   width: 100%;
 }
 
@@ -25,11 +59,13 @@ body {
     scale: 0.8;
     opacity: 0.8;
   }
+
   50% {
     transform: translateY(-5px);
     opacity: 1;
     scale: 1;
   }
+
   100% {
     transform: translateY(0);
     scale: 0.8;

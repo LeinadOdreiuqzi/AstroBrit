@@ -1,60 +1,127 @@
 ---
 import Skin from "../components/skin.astro";
-
-const mySkins = [
-  {
-    id: "omsijepse_skin",
-    skinPath: "/assets/OmsijepseBritannico.png",
-    animation: "CrouchAnimation",
-    autoRotate: false,
-    cameraLightIntensity: 2.0,
-    globalLightIntensity: 2.5,
-    cameraPositionX: 0,
-    cameraPositionY: 15,
-    cameraPositionZ: 60,
-    cameraLookAtX: 0,
-    cameraLookAtY: 10,
-    cameraLookAtZ: 0,
-    rank: "11",
-    rankTitle: "Leyenda",
-    username: "Omsijepse",
-    userDescription: "Temporada 28 // R100 // L340",
-    elogios: 9999,
-  },
-];
+import { developmentSkin } from "../data/skinsData.js";
 ---
 
 <section class="en-desarrollo">
-  <h2>En desarrollo...</h2>
-  <div class="skin-box">
-    <Skin skinsToDisplay={mySkins} />
+  <div class="dev-content">
+    <div class="text-side">
+      <h2>En desarrollo...</h2>
+    </div>
+    <div class="skin-side">
+      <div class="skin-box">
+        <Skin skinsToDisplay={developmentSkin} width={250} height={350} />
+      </div>
+      <div class="glow-effect"></div>
+    </div>
   </div>
 </section>
 
 <style>
   .en-desarrollo {
     position: relative;
-    z-index: 1001;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 2rem 1rem;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 12px;
-  }
-  .en-desarrollo h2 {
-    font-size: 2rem;
-    color: #ff6b00;
-    text-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
-  }
-  .skin-box {
-    width: 360px;
-    height: 360px;
-    max-width: 90vw;
-    max-height: 70vh;
+    z-index: 10;
+    min-height: 100vh;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: linear-gradient(to bottom, transparent, var(--color-bg-dark));
+    padding: var(--space-xl) var(--section-padding-x);
+  }
+
+  .dev-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xxl);
+    width: 100%;
+    max-width: var(--section-max-width);
+    margin: 0 auto;
+  }
+
+  .text-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .status-badge {
+    background: var(--color-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    width: fit-content;
+    letter-spacing: 2px;
+    box-shadow: 0 0 30px rgba(255, 107, 0, 0.4);
+  }
+
+  .text-side h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: white;
+    margin: 0;
+    line-height: 1;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .skin-side {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .skin-box {
+    width: 250px;
+    height: 350px;
+    max-width: 100%;
+    z-index: 2;
+  }
+
+  .glow-effect {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: var(--color-primary);
+    filter: blur(150px);
+    opacity: 0.2;
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  @media (max-width: 1024px) {
+    .en-desarrollo {
+      min-height: auto;
+      padding: var(--space-xxl) var(--section-padding-x) var(--space-lg);
+    }
+
+    .dev-content {
+      flex-direction: column-reverse;
+      text-align: center;
+      gap: var(--space-lg);
+    }
+
+    .text-side {
+      align-items: center;
+    }
+
+    .text-side h2 {
+      font-size: clamp(2rem, 8vw, 3.5rem);
+    }
+
+    .skin-box {
+      width: 280px;
+      height: 320px;
+    }
+
+    .glow-effect {
+      width: 200px;
+      height: 200px;
+    }
   }
 </style>

@@ -23,9 +23,16 @@ interface SkinConfig {
 interface Props {
   skinsToDisplay: SkinConfig[];
   interactive?: boolean;
+  width?: number;
+  height?: number;
 }
 
-const { skinsToDisplay = [], interactive = false } = Astro.props;
+const {
+  skinsToDisplay = [],
+  interactive = false,
+  width = 200,
+  height = 300,
+} = Astro.props;
 const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
@@ -43,7 +50,9 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
   is:inline
   src="https://cdn.jsdelivr.net/npm/skinview3d/bundles/skinview3d.bundle.js"
 ></script>
-<script define:vars={{ skinsToDisplay, containerId, interactive }}>
+<script
+  define:vars={{ skinsToDisplay, containerId, interactive, width, height }}
+>
   const viewers = new Map();
   /*
     - skinview3d.IdleAnimation() : Animación de inactividad.
@@ -62,8 +71,8 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
     try {
       skinViewer = new skinview3d.SkinViewer({
         canvas: canvasElement,
-        width: 200,
-        height: 300,
+        width: width,
+        height: height,
       });
 
       // Explicitly load skin and catch every possible error

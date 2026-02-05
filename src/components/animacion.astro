@@ -329,8 +329,16 @@
   });
 
   function setupMainAnimation() {
+    // Detect mobile
+    const isMobile = window.innerWidth <= 768;
+
     // Timeline principal con ScrollTrigger
-    const scrollLen = Math.max(window.innerHeight * 4, totalFrames * 14);
+    // Reducir recorrido en mobile para que no sea tan "pesado"
+    const baseLen = isMobile
+      ? window.innerHeight * 2.5
+      : window.innerHeight * 4;
+    const scrollLen = Math.max(baseLen, totalFrames * (isMobile ? 10 : 14));
+
     const mainTimeline = gsap.timeline({
       ease: "power2.inOut",
       scrollTrigger: {
