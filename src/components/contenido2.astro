@@ -34,74 +34,11 @@ import { galleryItems, galleryLayout } from "../data/galleryData.js";
   </div>
 </section>
 
-<section class="gallery-title-section section-container">
-  <h2 class="section-title">Britannia en Cococraft</h2>
-</section>
-
 <section class="gallery-section">
   <div class="section-container no-padding-y">
     <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
   </div>
 </section>
-
-<script>
-  // Definir la interfaz para el elemento lightbox personalizado
-  interface LightboxElement extends HTMLElement {
-    open: () => void;
-    setAttribute: (name: string, value: string) => void;
-    getAttribute: (name: string) => string | null;
-  }
-
-  // Declarar la función en el ámbito global
-  declare global {
-    interface Window {
-      openLightbox: (index: number) => void;
-    }
-  }
-
-  function openLightbox(index: number) {
-    const lightbox = document.querySelector(
-      "lightbox-island",
-    ) as LightboxElement | null;
-    if (lightbox) {
-      const layoutStr = lightbox.getAttribute("layout");
-      const layout = layoutStr ? JSON.parse(layoutStr) : [];
-
-      if (index > 0) {
-        const clickedItem = layout.find((item: any) => item.index === index);
-        if (clickedItem) {
-          const newLayout = [
-            layout[0], // Mantener el hero primero
-            clickedItem, // Poner el ítem clickeado en segundo lugar
-            ...layout.filter(
-              (item: any) => item.index !== 0 && item.index !== index,
-            ), // El resto
-          ];
-          lightbox.setAttribute("layout", JSON.stringify(newLayout));
-        }
-      }
-
-      if (lightbox.open) {
-        lightbox.open();
-      } else {
-        lightbox.setAttribute("open", "");
-      }
-    }
-  }
-
-  // Configurar los manejadores de eventos para los elementos de la galería
-  document.addEventListener("DOMContentLoaded", () => {
-    const galleryItems = document.querySelectorAll("[data-gallery-item]");
-    galleryItems.forEach((item) => {
-      item.addEventListener("click", (e) => {
-        const index = parseInt(item.getAttribute("data-index") || "0", 10);
-        openLightbox(index);
-      });
-    });
-  });
-
-  window.openLightbox = openLightbox;
-</script>
 
 <style>
   .info-section {

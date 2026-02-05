@@ -88,21 +88,13 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
   }
 </section>
 
-<!-- Web Component Island for Lightbox -->
-<lightbox-island
-  id={`lightboxIsland-${uid}`}
-  items={JSON.stringify(items)}
-  layout={JSON.stringify(layout ?? null)}
-  indices={JSON.stringify(indices ?? null)}
-  caption={caption ?? null}></lightbox-island>
-
 <!-- Client-side script for the lightbox component -->
 <script>
   // This will be executed on the client side
-  import "./LightboxIsland.js";
+  // Lightbox imported globally in Layout.astro
 </script>
 
-<script type="module" define:vars={{ uid }}>
+<script type="module" define:vars={{ uid, layout, caption }}>
   // Esperar a DOMContentLoaded para asegurarnos de que Astro ya montó el HTML
   window.addEventListener("DOMContentLoaded", () => {
     // console.log("[gallery] DOM ready");
@@ -194,12 +186,22 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
         }
       });
       hero.addEventListener("click", () => {
-        const island = document.getElementById(`lightboxIsland-${uid}`);
+        const island = document.getElementById("global-lightbox");
         if (!island) return;
-        try {
+
+        if (typeof island.setData === "function") {
+          island.setData({
+            mode: "gallery",
+            items: itemsData,
+            layout: layout,
+            caption: caption || "Spawn Britannia CocoCraft",
+          });
+        } else {
+          island.setAttribute("mode", "gallery");
           island.setAttribute("items", JSON.stringify(itemsData));
-          island.setAttribute("mode", "gallery"); // Force gallery mode
-        } catch {}
+          island.setAttribute("layout", JSON.stringify(layout));
+        }
+
         if (typeof island.open === "function") island.open();
         else island.setAttribute("open", "");
       }); // fin hero click
@@ -259,12 +261,21 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
       grid.addEventListener("click", (e) => {
         const item = e.target.closest(".gallery-item");
         if (!item) return;
-        const island = document.getElementById(`lightboxIsland-${uid}`);
+        const island = document.getElementById("global-lightbox");
         if (!island) return;
-        try {
+
+        if (typeof island.setData === "function") {
+          island.setData({
+            mode: "gallery",
+            items: itemsData,
+            layout: layout,
+          });
+        } else {
+          island.setAttribute("mode", "gallery");
           island.setAttribute("items", JSON.stringify(itemsData));
-          island.setAttribute("mode", "gallery"); // Force gallery mode
-        } catch {}
+          island.setAttribute("layout", JSON.stringify(layout));
+        }
+
         if (typeof island.open === "function") island.open();
         else island.setAttribute("open", "");
       });

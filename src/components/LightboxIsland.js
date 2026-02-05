@@ -63,6 +63,27 @@ class LightboxIsland extends HTMLElement {
     }
   }
 
+  /**
+   * Batch update data and mode to avoid multiple renders
+   * @param {Object} data { mode, items, layout, caption, indices }
+   */
+  setData(data) {
+    if (data.items !== undefined) this._items = data.items;
+    if (data.mode !== undefined) this._mode = data.mode;
+    if (data.layout !== undefined) this._layout = data.layout;
+    if (data.caption !== undefined) this._caption = data.caption;
+    if (data.indices !== undefined) this._indices = data.indices;
+
+    // Reflect mode to attribute for styling if needed
+    if (data.mode) {
+      if (this.getAttribute("mode") !== data.mode) {
+        this.setAttribute("mode", data.mode);
+      }
+    }
+
+    this._render();
+  }
+
   connectedCallback() {
     if (!this.shadowRoot.innerHTML) {
       this._render();
@@ -89,23 +110,8 @@ class LightboxIsland extends HTMLElement {
     this._removeFocusTrap();
     const root = this.shadowRoot.querySelector(".lightbox");
     const g = window.gsap;
-    if (g && root) {
-      g.to(root, {
-        autoAlpha: 0, y: 18, duration: 0.35, ease: "power2.in", onComplete: () => {
-          if (this._destinyViewer) {
-            this._destinyViewer.dispose();
-            this._destinyViewer = null;
-          }
-          document.documentElement.classList.remove("lb-open");
-          document.body.classList.remove("lb-open");
-          this.removeAttribute("open");
-          if (this._prevFocus && typeof this._prevFocus.focus === "function") {
-            try { this._prevFocus.focus(); } catch { }
-          }
-          this._removeScrollHandlers();
-          g.set(root, { clearProps: "opacity,transform" });
-        }
-      });
+
+    const finalizeClose = () => {
       if (this._destinyViewer) {
         this._destinyViewer.dispose();
         this._destinyViewer = null;
@@ -117,6 +123,22 @@ class LightboxIsland extends HTMLElement {
         try { this._prevFocus.focus(); } catch { }
       }
       this._removeScrollHandlers();
+    };
+
+    if (g && root) {
+      g.to(root, {
+        autoAlpha: 0,
+        y: 18,
+        duration: 0.3,
+        ease: "power2.in",
+        onComplete: () => {
+          finalizeClose();
+          g.set(root, { clearProps: "opacity,transform" });
+        }
+      });
+    } else {
+      finalizeClose();
+      if (root) root.setAttribute("hidden", "");
     }
   }
 
@@ -210,9 +232,19 @@ class LightboxIsland extends HTMLElement {
   }
 
   _render() {
-    const items = this._getRenderableItems(); // logic used by gallery mode
+    if (this._destinyViewer) {
+      this._destinyViewer.dispose();
+      this._destinyViewer = null;
+    }
+
+    // Explicitly clear shadow root to prevent any ghosting
+    this.shadowRoot.innerHTML = "";
+
+    const items = this._getRenderableItems();
     const first = items[0] && (items[0].data || items[0]);
     const rest = items.slice(1);
+
+    const modeClass = this._mode === "destiny" ? "lightbox--destiny" : "lightbox--gallery";
 
     if (this._mode === "destiny") {
       // --- DESTINY MODE RENDER ---
@@ -220,12 +252,15 @@ class LightboxIsland extends HTMLElement {
       const src = item.src || item.skinPath || "/assets/servi.webp";
       const { rank, rankTitle, userDescription, elogios, username } = item;
 
-      this.shadowRoot.innerHTML = DestinyLayout.getHTML({ src, rank, rankTitle, userDescription, elogios, username });
+      const html = DestinyLayout.getHTML({ src, rank, rankTitle, userDescription, elogios, username });
+      this.shadowRoot.innerHTML = html;
+
+      const root = this.shadowRoot.querySelector(".lightbox");
+      if (root) root.classList.add(modeClass);
 
       this._destinyLoading = true;
       DestinyLayout.init(this.shadowRoot, { src }, this._onClose).then(viewer => {
         this._destinyLoading = false;
-        // RACE CONDITION: If the lightbox was closed while we were loading, dispose immediately
         if (!this.hasAttribute("open") || this._mode !== "destiny") {
           if (viewer) viewer.dispose();
           return;
@@ -233,6 +268,7 @@ class LightboxIsland extends HTMLElement {
         this._destinyViewer = viewer;
       });
       this._contentEl = null;
+      this._syncOpenState();
       return;
     }
 
@@ -270,7 +306,7 @@ class LightboxIsland extends HTMLElement {
         .full-close { position: absolute; top: 16px; right: 16px; appearance: none; border: none; background: rgba(255,255,255,.18); color: #fff; font-size: 26px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; }
         @media (max-width: 860px) { .hero { grid-template-columns: 1fr; height: auto; } .hero-info { height: auto; } }
       </style>
-      <div class="lightbox" role="dialog" aria-modal="true" hidden aria-hidden="true">
+      <div class="lightbox ${modeClass}" role="dialog" aria-modal="true" hidden aria-hidden="true">
         <button class="lightbox-close" aria-label="Cerrar">×</button>
         
         <div class="lightbox-content">
@@ -345,6 +381,8 @@ class LightboxIsland extends HTMLElement {
         this._openFull(src, alt);
       });
     });
+
+    this._syncOpenState();
   }
 
   _animateOpen() {

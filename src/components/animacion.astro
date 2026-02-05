@@ -8,7 +8,7 @@
 <div id="gradient-layer"></div>
 
 <!-- Contenido principal que usa ScrollTrigger como trigger -->
-<div id="main-content" class="relative">
+<div id="intro-trigger" class="relative">
   <section class="hero-section">
     <div id="hero-key" class="hero-content"></div>
   </section>
@@ -342,7 +342,7 @@
     const mainTimeline = gsap.timeline({
       ease: "power2.inOut",
       scrollTrigger: {
-        trigger: "#main-content",
+        trigger: "#intro-trigger",
         start: "top top",
         end: () => "+=" + scrollLen,
         scrub: 2.5,

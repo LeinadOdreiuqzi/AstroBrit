@@ -155,11 +155,9 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
 
         try {
           const config = JSON.parse(item.getAttribute("data-skin-config"));
-          const lightbox = document.querySelector("lightbox-island");
+          const lightbox = document.getElementById("global-lightbox");
 
           if (lightbox) {
-            lightbox.setAttribute("mode", "destiny");
-
             const itemData = {
               id: config.id,
               src: config.skinPath,
@@ -168,7 +166,15 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
               ...config,
             };
 
-            lightbox.setAttribute("items", JSON.stringify([itemData]));
+            if (typeof lightbox.setData === "function") {
+              lightbox.setData({
+                mode: "destiny",
+                items: [itemData],
+              });
+            } else {
+              lightbox.setAttribute("mode", "destiny");
+              lightbox.setAttribute("items", JSON.stringify([itemData]));
+            }
 
             if (typeof lightbox.open === "function") {
               lightbox.open();
