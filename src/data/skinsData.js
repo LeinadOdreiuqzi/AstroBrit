@@ -159,7 +159,7 @@ export const memberSkins = [
         rankTitle: "Aventurero",
         username: "Tugfalol",
         userDescription: "Temporada 28 // R100 // L340",
-        elogios: 6969,
+        elogios: 67,
     },
 ];
 
