@@ -32,6 +32,9 @@ class LightboxIsland extends HTMLElement {
   attributeChangedCallback(name, _old, value) {
     if (name === "open") {
       this._open = value !== null;
+      if (this._open && !this.shadowRoot.innerHTML) {
+        this._render();
+      }
       this._syncOpenState();
     } else if (name === "items") {
       try {
@@ -39,27 +42,27 @@ class LightboxIsland extends HTMLElement {
       } catch {
         this._items = [];
       }
-      this._render();
+      if (this._open) this._render();
     } else if (name === "indices") {
       try {
         this._indices = value ? JSON.parse(value) : null;
       } catch {
         this._indices = null;
       }
-      this._render();
+      if (this._open) this._render();
     } else if (name === "layout") {
       try {
         this._layout = value ? JSON.parse(value) : null;
       } catch {
         this._layout = null;
       }
-      this._render();
+      if (this._open) this._render();
     } else if (name === "caption") {
       this._caption = value || "";
-      this._render();
+      if (this._open) this._render();
     } else if (name === "mode") {
       this._mode = value || "gallery";
-      this._render();
+      if (this._open) this._render();
     }
   }
 
@@ -81,18 +84,25 @@ class LightboxIsland extends HTMLElement {
       }
     }
 
-    this._render();
+    if (this._open || (this._items && this._items.length > 0)) {
+      this._render();
+    }
   }
 
   connectedCallback() {
-    if (!this.shadowRoot.innerHTML) {
+    if (this._open && !this.shadowRoot.innerHTML) {
       this._render();
       this._syncOpenState();
     }
   }
 
   open() {
+    this._open = true;
+    if (!this.shadowRoot.innerHTML) {
+      this._render();
+    }
     if (!this.hasAttribute("open")) this.setAttribute("open", "");
+    this._syncOpenState();
     // focus handling
     this._prevFocus = document.activeElement;
     const closeBtn = this.shadowRoot.querySelector(".lightbox-close");
@@ -241,10 +251,17 @@ class LightboxIsland extends HTMLElement {
     this.shadowRoot.innerHTML = "";
 
     const items = this._getRenderableItems();
+    const modeClass = this._mode === "destiny" ? "lightbox--destiny" : "lightbox--gallery";
+
+    if (this._mode !== "destiny" && items.length === 0) {
+      this.shadowRoot.innerHTML = `<div class="lightbox ${modeClass}" hidden aria-hidden="true"></div>`;
+      this._contentEl = null;
+      this._syncOpenState();
+      return;
+    }
+
     const first = items[0] && (items[0].data || items[0]);
     const rest = items.slice(1);
-
-    const modeClass = this._mode === "destiny" ? "lightbox--destiny" : "lightbox--gallery";
 
     if (this._mode === "destiny") {
       // --- DESTINY MODE RENDER ---
