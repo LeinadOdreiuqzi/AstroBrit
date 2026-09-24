@@ -1,22 +1,21 @@
 ---
 import { Image } from "astro:assets";
 
-// Gallery item type definition
-const GalleryItem = {
-  id: "",
-  src: "",
-  title: "",
-  subtitle: "",
-};
+export interface GalleryItem {
+  id: string;
+  src: any;
+  title?: string;
+  subtitle?: string;
+}
 
-const Props = {
-  items: [],
-  columns: 6,
-  variant: "hero",
-  layout: null,
-  indices: null,
-  caption: null,
-};
+export interface Props {
+  items?: any[];
+  columns?: number;
+  variant?: string;
+  layout?: any;
+  indices?: any;
+  caption?: string | null;
+}
 
 const defaultItems = [
   {
@@ -43,7 +42,6 @@ const {
   columns = 6,
   variant = items.length === 1 ? "hero" : "mosaic",
   layout = null,
-  indices = null,
   caption = null,
 } = Astro.props;
 const uid = "gal-" + Math.random().toString(36).slice(2);

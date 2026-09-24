@@ -1,16 +1,16 @@
 // Import assets
-import Cocospawn from "../assets/Cocospawn.png";
-import CentroPlots from "../assets/centroplots.png";
-import EstatuaLaus from "../assets/estatuaLaus.png";
-import TorreBrujo from "../assets/torrebrujo.png";
-import Bar from "../assets/bar.png";
-import Dragones from "../assets/dragones.png";
-import PolloWow from "../assets/pollowow.png";
-import Ramdis from "../assets/ramdis.png";
-import Erebor from "../assets/erebor.png";
-import ElArbol from "../assets/elarbol.png";
-import Coliseo from "../assets/coliseo.png";
-import Caballero from "../assets/caballero.png";
+import Cocospawn from "../assets/Cocospawn.webp";
+import CentroPlots from "../assets/centroplots.webp";
+import EstatuaLaus from "../assets/estatuaLaus.webp";
+import TorreBrujo from "../assets/torrebrujo.webp";
+import Bar from "../assets/bar.webp";
+import Dragones from "../assets/dragones.webp";
+import PolloWow from "../assets/pollowow.webp";
+import Ramdis from "../assets/ramdis.webp";
+import Erebor from "../assets/erebor.webp";
+import ElArbol from "../assets/elarbol.webp";
+import Coliseo from "../assets/coliseo.webp";
+import Caballero from "../assets/caballero.webp";
 
 export const galleryItems = [
   {

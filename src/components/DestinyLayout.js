@@ -1,6 +1,6 @@
 export const DestinyLayout = {
    getHTML(data) {
-      const { src, rank, rankTitle, userDescription, elogios, username } = data;
+      const { rank, rankTitle, userDescription, elogios, username } = data;
       const safeDesc = userDescription || "Temporada 28 // R1 // L0";
       const safeElogios = elogios || "0";
       const safeUsername = username || "cabotercero";

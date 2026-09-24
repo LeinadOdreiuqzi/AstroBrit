@@ -57,13 +57,10 @@ import Footer from "../components/Footer.astro";
 
 		<meta name="generator" content={Astro.generator} />
 		<link rel="stylesheet" href="/assets/styles.css" />
-		<!-- GSAP CDN for production (static hosting) -->
-		<script
-			src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"
-			defer></script>
-		<script
-			src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"
-			defer></script>
+		<!-- GSAP Local Bundle -->
+		<script>
+			import "../scripts/gsap.js";
+		</script>
 	</head>
 	<body>
 		<slot />

@@ -341,7 +341,6 @@ class LightboxIsland extends HTMLElement {
       })()}
           <section class="gallery-items">
             ${(() => {
-        const count = rest.length;
         return rest.map((entry, i) => {
           const it = entry.data || entry;
           const id = (it && it.id) || `it-${i + 1}`;
@@ -350,7 +349,6 @@ class LightboxIsland extends HTMLElement {
           if (typeof src === "object" && src !== null && src.src) {
             src = src.src;
           }
-          const ratio = count > 1 ? i / (count - 1) : 0;
           const cycle = ["gi-md", "gi-xl", "gi-sm", "gi-lg", "gi-md", "gi-lg", "gi-xl", "gi-sm"];
           const cls = cycle[i % cycle.length];
           const amp = 46;

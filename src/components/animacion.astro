@@ -33,110 +33,129 @@
   </svg>
 </div>
 
-<!-- GSAP y ScrollTrigger se cargan globalmente desde Layout.astro -->
-<script is:inline>
-  function waitForGSAP(timeout = 5000) {
-    const start = Date.now();
-    return new Promise((resolve) => {
-      (function check() {
-        if (window.gsap && window.ScrollTrigger) {
-          try {
-            window.gsap.registerPlugin(window.ScrollTrigger);
-          } catch {}
-          resolve();
-        } else if (Date.now() - start < timeout) {
-          setTimeout(check, 50);
-        } else {
-          resolve(); // continuar sin bloquear si tarda demasiado
-        }
-      })();
-    });
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-    // Recalcular en resize para mantener recorrido coherente
-    window.addEventListener("resize", () => {
-      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-    });
-  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Recalcular en resize para mantener recorrido coherente
+  window.addEventListener("resize", () => {
+    ScrollTrigger.refresh();
+  });
 
   // Cargar y configurar la animación de frames
   const framesContainer = document.getElementById("frames-animation");
   const totalFrames = 89;
   let currentFrame = 0;
-  const frames = [];
-  let framesLoaded = 0;
+  const frames: (HTMLImageElement | undefined)[] = new Array(totalFrames);
 
   // Variables para controlar el estado de las timelines
   let firstTimelineComplete = false;
   let isHiding = false;
-  let lastScrollProgress = 0;
-
-  // Precargar y crear elementos de imagen para cada frame
-  function preloadFrames() {
-    return new Promise((resolve) => {
-      for (let i = 1; i <= totalFrames; i++) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = `/assets/frames/1 (${i}).webp`;
-        img.alt = `Frame ${i}`;
-        img.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: 0;
-        pointer-events: none;
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-      `;
-
-        img.onload = () => {
-          framesLoaded++;
-          if (framesLoaded === totalFrames) {
-            resolve();
-          }
-        };
-
-        img.onerror = () => {
-          console.warn(`Failed to load frame ${i}`);
-          framesLoaded++;
-          if (framesLoaded === totalFrames) {
-            resolve();
-          }
-        };
-
-        framesContainer.appendChild(img);
-        frames.push(img);
-      }
-    });
-  }
-
   let isAnimating = false;
   let lastRenderedFrame = -1;
 
-  function showFrame(frameIndex) {
-    // Evitar actualizaciones innecesarias
-    if (frameIndex === lastRenderedFrame || !frames[frameIndex]) return;
+  function createFrameImg(i: number): HTMLImageElement {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = `/assets/frames/1 (${i}).webp`;
+    img.alt = `Frame ${i}`;
+    img.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      display: none;
+      pointer-events: none;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    `;
+    return img;
+  }
 
-    // Evitar solapamiento de animaciones
+  // Carga inmediata del frame inicial para un First Paint instantáneo (<50ms)
+  function loadInitialFrame(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      if (!framesContainer) {
+        resolve();
+        return;
+      }
+      const img = createFrameImg(1);
+      img.onload = () => {
+        img.style.display = "block";
+        img.style.opacity = "1";
+        framesContainer?.appendChild(img);
+        frames[0] = img;
+        resolve();
+      };
+      img.onerror = () => {
+        framesContainer?.appendChild(img);
+        frames[0] = img;
+        resolve();
+      };
+    });
+  }
+
+  // Precargar frames restantes progresivamente en background durante tiempo ocioso
+  function preloadRemainingFrames() {
+    if (!framesContainer) return;
+    let nextIndex = 2; // frames 2 a 89
+    const batchSize = 6;
+
+    function loadNextBatch() {
+      if (nextIndex > totalFrames) return;
+      const end = Math.min(nextIndex + batchSize, totalFrames + 1);
+      for (let i = nextIndex; i < end; i++) {
+        const frameIdx = i - 1;
+        if (!frames[frameIdx] && framesContainer) {
+          const img = createFrameImg(i);
+          framesContainer.appendChild(img);
+          frames[frameIdx] = img;
+        }
+      }
+      nextIndex = end;
+      if (nextIndex <= totalFrames) {
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(loadNextBatch, { timeout: 600 });
+        } else {
+          setTimeout(loadNextBatch, 80);
+        }
+      }
+    }
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(loadNextBatch, { timeout: 400 });
+    } else {
+      setTimeout(loadNextBatch, 100);
+    }
+  }
+
+  function showFrame(frameIndex: number) {
+    if (frameIndex === lastRenderedFrame) return;
+
+    let targetFrame = frames[frameIndex];
+    if (!targetFrame && framesContainer) {
+      targetFrame = createFrameImg(frameIndex + 1);
+      framesContainer.appendChild(targetFrame);
+      frames[frameIndex] = targetFrame;
+    }
+
+    if (!targetFrame) return;
     if (isAnimating) return;
     isAnimating = true;
 
-    // Usar requestAnimationFrame para sincronizar con el renderizado del navegador
     requestAnimationFrame(() => {
       try {
-        // Ocultar el frame actual si existe
-        if (frames[currentFrame] && currentFrame !== frameIndex) {
-          frames[currentFrame].style.display = "none";
+        const prevFrame = frames[currentFrame];
+        if (prevFrame && currentFrame !== frameIndex) {
+          prevFrame.style.display = "none";
         }
-
-        // Mostrar el nuevo frame
-        const targetFrame = frames[frameIndex];
         targetFrame.style.display = "block";
         targetFrame.style.opacity = "1";
-
-        // Actualizar el frame actual
         currentFrame = frameIndex;
         lastRenderedFrame = frameIndex;
       } catch (error) {
@@ -163,30 +182,9 @@
     }
   }
 
-  // Función para ocultar la segunda timeline
-  function hideSecondTimeline() {
-    const secondTimelineContent = document.querySelector("main");
-    const logoMask = document.querySelector("#logo-mask");
-
-    // Ocultar instantáneamente el contenido de la segunda timeline
-    if (secondTimelineContent) {
-      gsap.set(secondTimelineContent, {
-        opacity: 0,
-        pointerEvents: "none",
-      });
-    }
-    if (logoMask) {
-      gsap.set(logoMask, { opacity: 1 });
-    }
-
-    // IMPORTANTE: No reiniciamos firstTimelineComplete a false
-    // para que la animación de entrada no se repita.
-  }
-
   // Función para activar la segunda timeline con animaciones rápidas
-  window.activateSecondTimeline = () => {
+  const activateSecondTimeline = () => {
     if (firstTimelineComplete) {
-      // console.log("Segunda timeline ya está activa, saltando...");
       return;
     }
 
@@ -295,38 +293,28 @@
     // console.log("Segunda timeline activada completamente");
   };
 
-  // Mostrar el gradiente al cargar la página
-  document.addEventListener("DOMContentLoaded", async () => {
+  function initAnim() {
     initializeSecondTimeline();
 
-    await preloadFrames();
-
-    // Mostrar el primer frame instantáneamente
-    if (frames[0]) {
-      frames[0].style.display = "block";
-      frames[0].style.opacity = "1";
-    }
-
-    // Esperar GSAP/ScrollTrigger si aún no está listo
-    await waitForGSAP();
-
-    // Forzar que ScrollTrigger se calcule y active
-    if (window.ScrollTrigger) {
-      window.ScrollTrigger.refresh();
-    }
-
-    // Forzar render inmediato del primer frame y configurar animación principal
-    if (window.gsap) {
-      window.gsap.set("#frames-animation", {
+    // 1. Mostrar el primer frame instantáneamente (<50ms)
+    loadInitialFrame().then(() => {
+      gsap.set("#frames-animation", {
         opacity: 1,
         immediateRender: true,
       });
-      showFrame(0);
       setupMainAnimation();
-      // Forzar refresco después de configurar todos los disparadores y pins
       ScrollTrigger.refresh();
-    }
-  });
+
+      // 2. Precargar frames restantes en background de forma ociosa
+      preloadRemainingFrames();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAnim);
+  } else {
+    initAnim();
+  }
 
   function setupMainAnimation() {
     // Detect mobile
@@ -394,7 +382,7 @@
               frames.forEach((frame) => {
                 if (frame) frame.style.display = "none";
               });
-              window.activateSecondTimeline();
+              activateSecondTimeline();
             },
           });
 
@@ -506,7 +494,9 @@
             scale: 1,
             pointerEvents: "auto",
             duration: 0.4,
-            onComplete: () => bounceAnim.play(),
+            onComplete: () => {
+              bounceAnim.play();
+            },
           });
         },
         invalidateOnRefresh: true,

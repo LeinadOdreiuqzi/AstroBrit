@@ -33,7 +33,7 @@ const {
   width = 200,
   height = 300,
 } = Astro.props;
-const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
+const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
 ---
 
 <div id={containerId} class="skin-viewers-container">
@@ -53,6 +53,8 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
 <script
   define:vars={{ skinsToDisplay, containerId, interactive, width, height }}
 >
+  // @ts-ignore
+  const cId = containerId;
   const viewers = new Map();
   /*
     - skinview3d.IdleAnimation() : Animación de inactividad.
@@ -146,7 +148,7 @@ const containerId = `skin-container-${Math.random().toString(36).substr(2, 9)}`;
   });
 
   // Handle clicks - Scoped to this container only
-  const container = document.getElementById(containerId);
+  const container = document.getElementById(cId);
   if (container && interactive) {
     const skinItems = container.querySelectorAll(".skin-item");
     skinItems.forEach((item) => {
