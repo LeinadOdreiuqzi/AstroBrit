@@ -47,31 +47,42 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
 </div>
 
 <script
-  is:inline
-  src="https://cdn.jsdelivr.net/npm/skinview3d/bundles/skinview3d.bundle.js"
-></script>
-<script
   define:vars={{ skinsToDisplay, containerId, interactive, width, height }}
 >
   // @ts-ignore
   const cId = containerId;
   const viewers = new Map();
-  /*
-    - skinview3d.IdleAnimation() : Animación de inactividad.
-    - skinview3d.WalkingAnimation() : Animación de caminar.
-    - skinview3d.RunningAnimation() : Animación de correr.
-    - skinview3d.FlyingAnimation() : Animación de volar.
-    - skinview3d.WaveAnimation() : Animación de saludar.
-    - skinview3d.CrouchAnimation() : Animación de agacharse.
-    - skinview3d.HitAnimation() : Animación de ser golpeado.
-    */
-  const initViewer = (skinConfig) => {
+
+  const getSkinview = () => {
+    return new Promise((resolve) => {
+      // @ts-ignore
+      if (window.skinview3d) return resolve(window.skinview3d);
+      const interval = setInterval(() => {
+        // @ts-ignore
+        if (window.skinview3d) {
+          clearInterval(interval);
+          // @ts-ignore
+          resolve(window.skinview3d);
+        }
+      }, 25);
+      setTimeout(() => {
+        clearInterval(interval);
+        // @ts-ignore
+        resolve(window.skinview3d || null);
+      }, 5000);
+    });
+  };
+
+  const initViewer = async (skinConfig) => {
+    const sv = await getSkinview();
+    if (!sv) return null;
+
     const canvasElement = document.getElementById(skinConfig.id);
     if (!canvasElement) return null;
 
     let skinViewer;
     try {
-      skinViewer = new skinview3d.SkinViewer({
+      skinViewer = new sv.SkinViewer({
         canvas: canvasElement,
         width: width,
         height: height,
@@ -86,14 +97,13 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
       return null;
     }
 
-    // Fix for: Uncaught TypeError: skinview3d[skinConfig.animation] is not a constructor
     if (
       skinConfig.animation &&
-      typeof skinview3d[skinConfig.animation] === "function"
+      typeof sv[skinConfig.animation] === "function"
     ) {
-      skinViewer.animation = new skinview3d[skinConfig.animation]();
+      skinViewer.animation = new sv[skinConfig.animation]();
     } else {
-      skinViewer.animation = new skinview3d.IdleAnimation();
+      skinViewer.animation = new sv.IdleAnimation();
     }
 
     skinViewer.autoRotate =
@@ -116,29 +126,45 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
     return skinViewer;
   };
 
-  // Intersection Observer to handle WebGL context limit
+  // Intersection Observer con pausa de render loop para 0% GPU en elementos ocultos
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         const id = entry.target.id;
-        const config = JSON.parse(
-          entry.target.parentElement.getAttribute("data-skin-config"),
-        );
+        const parent = entry.target.parentElement;
+        if (!parent) return;
+        const configAttr = parent.getAttribute("data-skin-config");
+        if (!configAttr) return;
+        const config = JSON.parse(configAttr);
 
         if (entry.isIntersecting) {
           if (!viewers.has(id)) {
-            const viewer = initViewer(config);
-            if (viewer) viewers.set(id, viewer);
+            viewers.set(id, "loading");
+            initViewer(config).then((viewer) => {
+              if (viewer) {
+                viewers.set(id, viewer);
+              } else {
+                viewers.delete(id);
+              }
+            });
+          } else {
+            const viewer = viewers.get(id);
+            if (viewer && typeof viewer !== "string" && viewer.renderPaused) {
+              viewer.renderPaused = false;
+            }
           }
         } else {
+          // Pausar render loop al salir de pantalla
           if (viewers.has(id)) {
-            viewers.get(id).dispose();
-            viewers.delete(id);
+            const viewer = viewers.get(id);
+            if (viewer && typeof viewer !== "string" && !viewer.renderPaused) {
+              viewer.renderPaused = true;
+            }
           }
         }
       });
     },
-    { rootMargin: "100px" },
+    { rootMargin: "150px" },
   );
 
   // Start observing

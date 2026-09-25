@@ -214,18 +214,19 @@ export const DestinyLayout = {
       closeBtn?.addEventListener("click", onClose);
 
       return new Promise((resolve) => {
-         setTimeout(async () => {
+         const tryInit = () => {
             const canvas = shadowRoot.getElementById("destiny-canvas");
-            if (canvas && window.skinview3d) {
+            const sv = window.skinview3d;
+            if (canvas && sv) {
                let viewer = null;
                try {
-                  viewer = new skinview3d.SkinViewer({
+                  viewer = new sv.SkinViewer({
                      canvas: canvas,
                      width: 450,
                      height: 700
                   });
 
-                  viewer.animation = new skinview3d.IdleAnimation();
+                  viewer.animation = new sv.IdleAnimation();
                   viewer.camera.position.set(0, 15, 55);
                   viewer.camera.lookAt(0, 15, 0);
                   viewer.autoRotate = true;
@@ -234,8 +235,7 @@ export const DestinyLayout = {
                   viewer.cameraLight.intensity = 2.0;
 
                   // Explicitly load the skin and catch errors
-                  await viewer.loadSkin(src);
-                  resolve(viewer);
+                  viewer.loadSkin(src).then(() => resolve(viewer)).catch(() => resolve(viewer));
                } catch (e) {
                   console.error("DestinyLayout: Skin load failed or init error", e);
                   if (viewer) viewer.dispose();
@@ -244,7 +244,13 @@ export const DestinyLayout = {
             } else {
                resolve(null);
             }
-         }, 50);
+         };
+
+         if (window.skinview3d) {
+            tryInit();
+         } else {
+            setTimeout(tryInit, 50);
+         }
       });
    }
 };
