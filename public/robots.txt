@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://britanniamc.com/sitemap-index.xml

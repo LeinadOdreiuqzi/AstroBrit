@@ -1,30 +1,58 @@
-<header class="header">
+---
+const title = "BRITANNIA";
+const letters = title.split("");
+---
+
+<header class="header" role="banner">
     <div class="contenedor">
-        <h1 class="texto" id="texto">BRITANNIA</h1>
+        <a href="/" class="texto" aria-label="Britannia - Inicio">
+            {
+                letters.map((letra, i) => (
+                    <span style={`--i: ${i};`}>{letra}</span>
+                ))
+            }
+        </a>
     </div>
 </header>
-<script is:inline>
-    const p = document.getElementById("texto");
 
-    const letras = p.textContent.split("");
-    p.textContent = "";
+<style>
+    .texto {
+        display: inline-flex;
+        font-family: "Arial", sans-serif;
+        font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+        font-weight: 900;
+        letter-spacing: 4px;
+        text-decoration: none;
+        user-select: none;
+    }
 
-    const spans = letras.map((letra) => {
-        const span = document.createElement("span");
-        span.textContent = letra;
-        p.appendChild(span);
-        return span;
-    });
-    let indiceActual = 0;
-    const colorActivo = "#d16a16ff";
-    const colorInactivo = "#555";
+    .texto span {
+        color: #555;
+        animation: letterGlow 4.5s ease-in-out infinite;
+        animation-delay: calc(var(--i) * 0.5s);
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
 
-    setInterval(() => {
-        spans.forEach((span) => (span.style.color = colorInactivo));
+    .texto:hover span {
+        animation-play-state: paused;
+        color: #ff6b00;
+        text-shadow: 0 0 16px rgba(255, 107, 0, 0.8);
+    }
 
-        spans[indiceActual].style.color = colorActivo;
-
-        indiceActual++;
-        if (indiceActual >= spans.length) indiceActual = 0;
-    }, 500);
-</script>
+    @keyframes letterGlow {
+        0%,
+        100% {
+            color: #555;
+            text-shadow: none;
+        }
+        20% {
+            color: #d16a16;
+            text-shadow: 0 0 14px rgba(209, 106, 22, 0.8);
+        }
+        40% {
+            color: #555;
+            text-shadow: none;
+        }
+    }
+</style>

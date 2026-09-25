@@ -154,7 +154,7 @@ export const DestinyLayout = {
                
                <div class="rank-overlay">
                   <span class="rank-label">Rango de jugador ${rank || "1"}</span>
-                  <h1 class="rank-title">${rankTitle || "Aventurero"}</h1>
+                  <h2 class="rank-title">${rankTitle || "Aventurero"}</h2>
                   <button class="rank-btn">Ver Progreso De Rango</button>
                   <!-- Progress bar simulated -->
                   <div style="width: 300px; height: 40px; background: rgba(0,0,0,0.5); margin-top:12px; display:flex; align-items:center; padding:0 12px; border-left: 2px solid #fff;">
