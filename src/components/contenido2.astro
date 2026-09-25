@@ -1,4 +1,5 @@
 ---
+import Section from "./common/Section.astro";
 import Galeria from "../components/Galeria.astro";
 import { galleryItems, galleryLayout } from "../data/galleryData.ts";
 import { siteConfig } from "../data/siteConfig.ts";
@@ -39,36 +40,19 @@ const networkTitle = siteConfig.server?.networkName
     </div>
   </div>
 </section>
-<section class="gallery-title-section section-container">
-  <h2 class="section-title">{networkTitle}</h2>
-</section>
-<section class="gallery-section">
-  <div class="section-container no-padding-y">
-    <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
-  </div>
-</section>
+
+<Section
+  id="galeria"
+  title={networkTitle}
+  subtitle="Descubre las fortalezas, monumentos y construcciones emblemáticas de la ciudad."
+  divider={true}
+>
+  <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
+</Section>
 
 <style>
   .info-section {
     padding-bottom: var(--space-md);
-  }
-
-  .no-padding-y {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  .gallery-title-section {
-    padding-top: var(--space-lg);
-    padding-bottom: var(--space-sm);
-  }
-
-  .section-title {
-    color: var(--color-primary);
-    font-size: clamp(1rem, 4vw, 2rem);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
   }
 
   .two-column-layout {
