@@ -1,4 +1,4 @@
-import { DestinyLayout } from './DestinyLayout.js';
+import { DestinyLayout } from './DestinyLayout.ts';
 
 class LightboxIsland extends HTMLElement {
   static get observedAttributes() {

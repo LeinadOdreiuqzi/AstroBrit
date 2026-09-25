@@ -1,11 +1,13 @@
-export const DestinyLayout = {
-   getHTML(data) {
-      const { rank, rankTitle, userDescription, elogios, username } = data;
-      const safeDesc = userDescription || "Temporada 28 // R1 // L0";
-      const safeElogios = elogios || "0";
-      const safeUsername = username || "cabotercero";
+import type { DestinyPlayerData } from "../types";
 
-      return `
+export const DestinyLayout = {
+  getHTML(data: DestinyPlayerData): string {
+    const { rank, rankTitle, userDescription, elogios, username } = data;
+    const safeDesc = userDescription || "Temporada 28 // R1 // L0";
+    const safeElogios = elogios || "0";
+    const safeUsername = username || "cabotercero";
+
+    return `
       <style>
         :host { display: contents; }
         .lightbox { 
@@ -206,51 +208,54 @@ export const DestinyLayout = {
          </div>
       </div>
     `;
-   },
+  },
 
-   init(shadowRoot, data, onClose) {
-      const { src } = data;
-      const closeBtn = shadowRoot.querySelector(".box-close");
-      closeBtn?.addEventListener("click", onClose);
+  init(shadowRoot: ShadowRoot, data: { src: string }, onClose: () => void): Promise<any> {
+    const { src } = data;
+    const closeBtn = shadowRoot.querySelector(".box-close");
+    closeBtn?.addEventListener("click", onClose);
 
-      return new Promise((resolve) => {
-         const tryInit = () => {
-            const canvas = shadowRoot.getElementById("destiny-canvas");
-            const sv = window.skinview3d;
-            if (canvas && sv) {
-               let viewer = null;
-               try {
-                  viewer = new sv.SkinViewer({
-                     canvas: canvas,
-                     width: 450,
-                     height: 700
-                  });
+    return new Promise((resolve) => {
+      const tryInit = () => {
+        const canvas = shadowRoot.getElementById("destiny-canvas") as HTMLCanvasElement | null;
+        const sv = window.skinview3d;
+        if (canvas && sv) {
+          let viewer: any = null;
+          try {
+            viewer = new sv.SkinViewer({
+              canvas: canvas,
+              width: 450,
+              height: 700,
+            });
 
-                  viewer.animation = new sv.IdleAnimation();
-                  viewer.camera.position.set(0, 15, 55);
-                  viewer.camera.lookAt(0, 15, 0);
-                  viewer.autoRotate = true;
-                  viewer.autoRotateSpeed = 0.6;
-                  viewer.globalLight.intensity = 2.4;
-                  viewer.cameraLight.intensity = 2.0;
+            viewer.animation = new sv.IdleAnimation();
+            viewer.camera.position.set(0, 15, 55);
+            viewer.camera.lookAt(0, 15, 0);
+            viewer.autoRotate = true;
+            viewer.autoRotateSpeed = 0.6;
+            viewer.globalLight.intensity = 2.4;
+            viewer.cameraLight.intensity = 2.0;
 
-                  // Explicitly load the skin and catch errors
-                  viewer.loadSkin(src).then(() => resolve(viewer)).catch(() => resolve(viewer));
-               } catch (e) {
-                  console.error("DestinyLayout: Skin load failed or init error", e);
-                  if (viewer) viewer.dispose();
-                  resolve(null);
-               }
-            } else {
-               resolve(null);
-            }
-         };
+            // Explicitly load the skin and catch errors
+            viewer
+              .loadSkin(src)
+              .then(() => resolve(viewer))
+              .catch(() => resolve(viewer));
+          } catch (e) {
+            console.error("DestinyLayout: Skin load failed or init error", e);
+            if (viewer) viewer.dispose();
+            resolve(null);
+          }
+        } else {
+          resolve(null);
+        }
+      };
 
-         if (window.skinview3d) {
-            tryInit();
-         } else {
-            setTimeout(tryInit, 50);
-         }
-      });
-   }
+      if (window.skinview3d) {
+        tryInit();
+      } else {
+        setTimeout(tryInit, 50);
+      }
+    });
+  },
 };

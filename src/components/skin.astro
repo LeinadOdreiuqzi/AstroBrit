@@ -1,27 +1,8 @@
 ---
-interface SkinConfig {
-  id: string;
-  skinPath: string;
-  animation?: any;
-  autoRotate?: boolean;
-  cameraLightIntensity?: number;
-  globalLightIntensity?: number;
-  cameraPositionX?: number;
-  cameraPositionY?: number;
-  cameraPositionZ?: number;
-  cameraLookAtX?: number;
-  cameraLookAtY?: number;
-  cameraLookAtZ?: number;
-  // Destiny Customization
-  rank?: string;
-  rankTitle?: string;
-  username?: string; // New field for customization
-  userDescription?: string; // e.g. "Temporada 28 // R30 // L329"
-  elogios?: number;
-}
+import type { MemberSkin } from "../types";
 
 interface Props {
-  skinsToDisplay: SkinConfig[];
+  skinsToDisplay: MemberSkin[];
   interactive?: boolean;
   width?: number;
   height?: number;
@@ -49,7 +30,7 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
 <script
   define:vars={{ skinsToDisplay, containerId, interactive, width, height }}
 >
-  // @ts-ignore
+  // @ts-nocheck
   const cId = containerId;
   const viewers = new Map();
 

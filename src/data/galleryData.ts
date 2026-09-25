@@ -1,3 +1,5 @@
+import type { GalleryItem, GalleryLayoutEntry } from "../types";
+
 // Import assets
 import Cocospawn from "../assets/Cocospawn.webp";
 import CentroPlots from "../assets/centroplots.webp";
@@ -12,7 +14,9 @@ import ElArbol from "../assets/elarbol.webp";
 import Coliseo from "../assets/coliseo.webp";
 import Caballero from "../assets/caballero.webp";
 
-export const galleryItems = [
+export type { GalleryItem, GalleryLayoutEntry };
+
+export const galleryItems: GalleryItem[] = [
   {
     id: "hero-image",
     src: Cocospawn,
@@ -88,7 +92,7 @@ export const galleryItems = [
   },
 ];
 
-export const galleryLayout = [
+export const galleryLayout: GalleryLayoutEntry[] = [
   { index: 0, className: "ms-3" }, // Imagen principal más grande
   { index: 1, className: "ms-2" }, // Imagen secundaria
   { index: 2, className: "ms-1" }, // Imagen pequeña
