@@ -3,39 +3,23 @@ import Section from "./common/Section.astro";
 import Galeria from "../components/Galeria.astro";
 import { galleryItems, galleryLayout } from "../data/galleryData.ts";
 import { siteConfig } from "../data/siteConfig.ts";
+import { historyData } from "../data/historyData.ts";
 
-const currentYear = new Date().getFullYear();
 const networkTitle = siteConfig.server?.networkName
   ? `Britannia en ${siteConfig.server.networkName}`
   : "Construcciones de Britannia";
 ---
 
-<section class="info-section section-container">
+<section id="historia" class="info-section section-container">
   <div class="two-column-layout">
     <div class="main-content">
-      <h1>¡Bienvenidos a Britannia!</h1>
-      <p class="subtitle">Un poco de historia.</p>
+      <h1>{historyData.title}</h1>
+      <p class="subtitle">{historyData.subtitle}</p>
 
       <div class="history-text">
-        <p>
-          La comunidad de Britannia nace en el año 2017, cuando un usuario;
-          ElGabyMC junto a su hermano Bondio, crearon una ciudad en un servidor:
-          Britannia.
-        </p>
-        <p>
-          Rápidamente la ciudad formó amistades, invitando a gente la cuál fue
-          importante en la formación de la comunidad. Pasaron muchos nombres y
-          figuras en la ciudad, se destacan personas como: Moonky, daremill,
-          DaxterRecord, DogGamer, Lunei, Deixol, Tioupi. Algunos aún siguen
-          jugando.
-        </p>
-        <p>
-          Estas personas serían fundamentales para crear el sentido de
-          pertenencia y la personalidad de la ciudad, sin el aporte y el paso de
-          estas personas sería difícil tener los principios actuales de la
-          ciudad. Actualmente, en el año {currentYear}, continuamos ese legado,
-          manteniendo esos principios y fomentando la diversión en la comunidad.
-        </p>
+        {historyData.paragraphs.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
       </div>
     </div>
   </div>
@@ -44,7 +28,6 @@ const networkTitle = siteConfig.server?.networkName
 <Section
   id="galeria"
   title={networkTitle}
-  subtitle="Descubre las fortalezas, monumentos y construcciones emblemáticas de la ciudad."
   divider={true}
 >
   <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
@@ -96,7 +79,7 @@ const networkTitle = siteConfig.server?.networkName
 
   @media (min-width: 1024px) {
     .two-column-layout {
-      grid-template-columns: 1fr; /* Keep it single column as per previous design but cleaner */
+      grid-template-columns: 1fr;
     }
   }
 </style>

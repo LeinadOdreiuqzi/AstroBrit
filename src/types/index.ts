@@ -79,6 +79,29 @@ export interface DestinyPlayerData {
 }
 
 /**
+ * Milestone event in Britannia's historical timeline
+ */
+export interface HistoryMilestone {
+  year: number | string;
+  title: string;
+  description: string;
+  highlight?: boolean;
+}
+
+/**
+ * Structured content for the community history and origins section
+ */
+export interface HistoryContent {
+  title: string;
+  subtitle: string;
+  paragraphs: string[];
+  foundationYear?: number;
+  founders?: string[];
+  veterans?: string[];
+  milestones?: HistoryMilestone[];
+}
+
+/**
  * Server and Minecraft network configuration where Britannia is currently hosted
  */
 export interface ServerConfig {

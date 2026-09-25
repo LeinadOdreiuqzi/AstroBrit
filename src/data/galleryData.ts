@@ -16,79 +16,99 @@ import Caballero from "../assets/caballero.webp";
 
 export type { GalleryItem, GalleryLayoutEntry };
 
+export const galleryCategories = [
+  { id: "todos", label: "Todas" },
+  { id: "spawns", label: "Spawns" },
+  { id: "ciudades", label: "Ciudades" },
+  { id: "monumentos", label: "Monumentos" },
+  { id: "arenas", label: "Arenas" },
+] as const;
+
 export const galleryItems: GalleryItem[] = [
   {
     id: "hero-image",
     src: Cocospawn,
     title: "EL CORAZÓN DE BRITANNIA",
     subtitle:
-      "Los años pasan, pero el Ojo sigue siendo el símbolo eterno en el centro de la ciudad. Bajo su mirada incansable, Britannia se mantiene viva: veteranos y recién llegados se encuentran aquí para comenzar nuevas aventuras y fortalecer la historia de la comunidad. <br> Hay lugar para todos:  Los relatos compartidos entre amigos y las tradiciones que nos mantienen unidos cada año. El Ojo observa y protege, inspirando a todos los que pisan esta ciudad legendaria.",
+      "Los años pasan, pero el Ojo sigue siendo el símbolo eterno en el centro de la ciudad. Bajo su mirada incansable, Britannia se mantiene viva: veteranos y recién llegados se encuentran aquí para comenzar nuevas aventuras y fortalecer la historia de la comunidad. Hay lugar para todos: los relatos compartidos entre amigos y las tradiciones que nos mantienen unidos cada año. El Ojo observa y protege, inspirando a todos los que pisan esta ciudad legendaria.",
+    category: "spawns",
   },
   {
     id: "gallery-1",
     src: CentroPlots,
     title: "Centro de la ciudad",
-    subtitle: "Centro de la ciudad",
+    subtitle: "Núcleo comercial y plots residenciales",
+    category: "ciudades",
   },
   {
     id: "gallery-2",
     src: EstatuaLaus,
-    title: "Estatua de laus",
-    subtitle: "",
+    title: "Estatua de Laus",
+    subtitle: "Monumento conmemorativo histórico",
+    category: "monumentos",
   },
   {
     id: "gallery-3",
     src: TorreBrujo,
     title: "Torre del Brujo",
-    subtitle: "Hogar del brujo",
+    subtitle: "Bastión místico en las alturas",
+    category: "monumentos",
   },
   {
     id: "gallery-4",
     src: Bar,
-    title: "Bar",
-    subtitle: "Área de recreación",
+    title: "Taverna & Bar",
+    subtitle: "Área de recreación y encuentro social",
+    category: "ciudades",
   },
   {
     id: "gallery-5",
     src: Dragones,
-    title: "estatuas de dragones del antiguo spawn",
-    subtitle: "Antiguo spawn",
+    title: "Estatuas de Dragones",
+    subtitle: "Guardianes ancestrales del antiguo spawn",
+    category: "monumentos",
   },
   {
     id: "gallery-6",
     src: PolloWow,
-    title: "Algo esconde en su interior",
-    subtitle: "pollo wow",
+    title: "El Secreto Interior",
+    subtitle: "Misterio arquitectónico oculto",
+    category: "monumentos",
   },
   {
     id: "gallery-7",
     src: Ramdis,
     title: "Ramdis",
-    subtitle: "Ciudad flotante",
+    subtitle: "Ciudad flotante entre las nubes",
+    category: "ciudades",
   },
   {
     id: "gallery-8",
     src: Erebor,
     title: "Erebor",
-    subtitle: "Montaña solitaria",
+    subtitle: "La montaña solitaria fortificada",
+    category: "monumentos",
   },
   {
     id: "gallery-9",
     src: ElArbol,
     title: "El Árbol",
-    subtitle: "Naturaleza ancestral",
+    subtitle: "Naturaleza ancestral y mística",
+    category: "monumentos",
   },
   {
     id: "gallery-10",
     src: Coliseo,
-    title: "Coliseo",
-    subtitle: "Arena de combate",
+    title: "Coliseo de Gladiadores",
+    subtitle: "Arena de combate y torneos",
+    category: "arenas",
   },
   {
     id: "gallery-11",
     src: Caballero,
-    title: "Caballero",
-    subtitle: "Guardia real",
+    title: "Caballero Guardián",
+    subtitle: "Estatua en honor a la guardia real",
+    category: "monumentos",
   },
 ];
 
@@ -100,3 +120,11 @@ export const galleryLayout: GalleryLayoutEntry[] = [
   { index: 4, className: "ms-1" }, // Imagen pequeña
   { index: 5, className: "ms-2" }, // Imagen mediana
 ];
+
+/**
+ * Helper to filter items by category
+ */
+export function getItemsByCategory(category?: string): GalleryItem[] {
+  if (!category || category === "todos") return galleryItems;
+  return galleryItems.filter((item) => item.category === category);
+}
