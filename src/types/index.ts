@@ -45,6 +45,7 @@ export interface GalleryItem {
   src: ImageMetadata | string;
   title: string;
   subtitle: string;
+  category?: "monumentos" | "ciudades" | "spawns" | "arenas" | string;
 }
 
 /**
@@ -75,4 +76,64 @@ export interface DestinyPlayerData {
   username?: string;
   userDescription?: string;
   elogios?: number | string;
+}
+
+/**
+ * Server and Minecraft network configuration where Britannia is currently hosted
+ */
+export interface ServerConfig {
+  networkName: string;
+  ip?: string;
+  bedrockIp?: string;
+  bedrockPort?: number | string;
+  gameMode?: string;
+  version?: string;
+}
+
+/**
+ * Community and social platforms links
+ */
+export interface CommunityLinks {
+  discord: string;
+  twitter?: string;
+  youtube?: string;
+  tiktok?: string;
+}
+
+/**
+ * Season and timeline configuration
+ */
+export interface SeasonConfig {
+  number: number;
+  name: string;
+  year: number;
+  formatted: string;
+}
+
+/**
+ * Global SEO and search engine optimization settings
+ */
+export interface SeoConfig {
+  siteName: string;
+  title: string;
+  description: string;
+  keywords: string[];
+  author: string;
+  url: string;
+  ogImage: string;
+  locale: string;
+}
+
+/**
+ * Master site configuration schema
+ */
+export interface SiteConfig {
+  server?: ServerConfig;
+  community: CommunityLinks;
+  branding: {
+    name: string;
+    tagline: string;
+    copyright: string;
+  };
+  seo: SeoConfig;
 }

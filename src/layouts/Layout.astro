@@ -1,8 +1,21 @@
 ---
 import Footer from "../components/Footer.astro";
+import { siteConfig } from "../data/siteConfig.ts";
+
+interface Props {
+	title?: string;
+	description?: string;
+	ogImage?: string;
+}
+
+const {
+	title = siteConfig.seo.title,
+	description = siteConfig.seo.description,
+	ogImage = siteConfig.seo.ogImage,
+} = Astro.props;
 ---
 
-<html lang="es">
+<html lang={siteConfig.seo.locale.split("_")[0] || "es"}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -16,65 +29,45 @@ import Footer from "../components/Footer.astro";
 		<link rel="apple-touch-icon" href="/assets/Theeye.png?v=2" />
 
 		<!-- SEO Meta Tags -->
-		<title>BritanniaMC - Comunidad de Minecraft Towny</title>
-		<meta
-			name="description"
-			content="BritanniaMC: Comunidad de Minecraft Towny, descubre nuestra historia, proyectos y construcciones."
-		/>
-		<meta
-			name="keywords"
-			content="Minecraft, BritanniaMC, Cococraft, Comunidad Minecraft, Servidor Minecraft, Construcción Minecraft, Minecraft Towny, Towny"
-		/>
-		<meta name="author" content="BritanniaMC Team" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta name="keywords" content={siteConfig.seo.keywords.join(", ")} />
+		<meta name="author" content={siteConfig.seo.author} />
 		<meta name="robots" content="index, follow" />
-		<link rel="canonical" href="https://britanniamc.com/" />
+		<link rel="canonical" href={siteConfig.seo.url} />
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content="https://britanniamc.com/" />
-		<meta property="og:site_name" content="BritanniaMC" />
-		<meta property="og:locale" content="es_ES" />
-		<meta
-			property="og:title"
-			content="BritanniaMC - Comunidad de Minecraft Towny"
-		/>
-		<meta
-			property="og:description"
-			content="Explora Britannia en Cococraft: Galería de construcciones, miembros destacados y proyectos masivos."
-		/>
-		<meta property="og:image" content="https://britanniamc.com/assets/Theeye.png" />
-		<meta property="og:image:secure_url" content="https://britanniamc.com/assets/Theeye.png" />
+		<meta property="og:url" content={siteConfig.seo.url} />
+		<meta property="og:site_name" content={siteConfig.seo.siteName} />
+		<meta property="og:locale" content={siteConfig.seo.locale} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:secure_url" content={ogImage} />
 		<meta property="og:image:type" content="image/png" />
 		<meta property="og:image:width" content="660" />
 		<meta property="og:image:height" content="669" />
-		<meta property="og:image:alt" content="Logo oficial de BritanniaMC" />
+		<meta property="og:image:alt" content={`Logo oficial de ${siteConfig.branding.name}`} />
 
 		<!-- Twitter -->
 		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:url" content="https://britanniamc.com/" />
-		<meta
-			name="twitter:title"
-			content="BritanniaMC - Comunidad de Minecraft Towny"
-		/>
-		<meta
-			name="twitter:description"
-			content="BritanniaMC: Comunidad de Minecraft Towny, descubre nuestra historia, proyectos y construcciones."
-		/>
-		<meta name="twitter:image" content="https://britanniamc.com/assets/Theeye.png" />
-		<meta name="twitter:image:alt" content="Logo oficial de BritanniaMC" />
+		<meta name="twitter:url" content={siteConfig.seo.url} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+		<meta name="twitter:image:alt" content={`Logo oficial de ${siteConfig.branding.name}`} />
 
 		<!-- JSON-LD Structured Data for Rich Search Results -->
-		<script type="application/ld+json">
-			{
-				"@context": "https://schema.org",
-				"@type": "WebSite",
-				"name": "BritanniaMC",
-				"url": "https://britanniamc.com/",
-				"description": "Comunidad de Minecraft Towny en Cococraft. Historia, proyectos masivos y miembros destacados.",
-				"image": "https://britanniamc.com/assets/Theeye.png",
-				"inLanguage": "es"
-			}
-		</script>
+		<script type="application/ld+json" set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			"name": siteConfig.seo.siteName,
+			"url": siteConfig.seo.url,
+			"description": siteConfig.seo.description,
+			"image": siteConfig.seo.ogImage,
+			"inLanguage": siteConfig.seo.locale.split("_")[0] || "es"
+		})} />
 
 		<meta name="generator" content={Astro.generator} />
 		<link rel="stylesheet" href="/assets/styles.css" />

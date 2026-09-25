@@ -1,6 +1,12 @@
 ---
 import Galeria from "../components/Galeria.astro";
 import { galleryItems, galleryLayout } from "../data/galleryData.ts";
+import { siteConfig } from "../data/siteConfig.ts";
+
+const currentYear = new Date().getFullYear();
+const networkTitle = siteConfig.server?.networkName
+  ? `Britannia en ${siteConfig.server.networkName}`
+  : "Construcciones de Britannia";
 ---
 
 <section class="info-section section-container">
@@ -12,7 +18,7 @@ import { galleryItems, galleryLayout } from "../data/galleryData.ts";
       <div class="history-text">
         <p>
           La comunidad de Britannia nace en el año 2017, cuando un usuario;
-          ElGabyMC junto a su hermano Bondio. Crearon una ciudad en un servidor,
+          ElGabyMC junto a su hermano Bondio, crearon una ciudad en un servidor:
           Britannia.
         </p>
         <p>
@@ -26,7 +32,7 @@ import { galleryItems, galleryLayout } from "../data/galleryData.ts";
           Estas personas serían fundamentales para crear el sentido de
           pertenencia y la personalidad de la ciudad, sin el aporte y el paso de
           estas personas sería difícil tener los principios actuales de la
-          ciudad. Actualmente, en el año 2025, continuamos ese legado,
+          ciudad. Actualmente, en el año {currentYear}, continuamos ese legado,
           manteniendo esos principios y fomentando la diversión en la comunidad.
         </p>
       </div>
@@ -34,7 +40,7 @@ import { galleryItems, galleryLayout } from "../data/galleryData.ts";
   </div>
 </section>
 <section class="gallery-title-section section-container">
-  <h2 class="section-title">Britannia en Cococraft</h2>
+  <h2 class="section-title">{networkTitle}</h2>
 </section>
 <section class="gallery-section">
   <div class="section-container no-padding-y">

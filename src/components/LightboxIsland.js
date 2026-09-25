@@ -336,7 +336,7 @@ class LightboxIsland extends HTMLElement {
         }
         const ftitle = (first && first.title) || "";
         const fsub = (first && first.subtitle) || "";
-        const fcap = this._caption || "Spawn Britannia CocoCraft";
+        const fcap = this._caption || "Spawn Britannia";
         return `<section class=\"hero\" data-id=\"${fid}\"><div class=\"hero-media\"><img alt=\"${falt}\" loading=\"eager\" src=\"${fsrc}\" /></div><aside class=\"hero-info\"><div class=\"hero-caption\">${fcap}</div><h2 class=\"hero-title\">${ftitle}</h2><p class=\"hero-sub\">${fsub}</p></aside></section>`;
       })()}
           <section class="gallery-items">

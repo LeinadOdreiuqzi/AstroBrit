@@ -1,16 +1,16 @@
 ---
-
+import { siteConfig } from "../data/siteConfig.ts";
 ---
 
 <footer>
   <div class="footer-inner">
-    <p class="copy">© 2026 BritanniaMC.</p>
+    <p class="copy">{siteConfig.branding.copyright}</p>
     <a
       class="discord-badge"
-      href="https://discord.gg/zcuwAhbWxR"
+      href={siteConfig.community.discord}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Discord"
+      aria-label="Discord Oficial de BritanniaMC"
     >
       <svg
         viewBox="0 0 24 24"

@@ -1,11 +1,14 @@
 import type { DestinyPlayerData } from "../types";
 
+const DESTINY_DEFAULT_SEASON = "Temporada 28";
+const DESTINY_DEFAULT_SEASON_TITLE = "Sin Ley";
+
 export const DestinyLayout = {
   getHTML(data: DestinyPlayerData): string {
     const { rank, rankTitle, userDescription, elogios, username } = data;
-    const safeDesc = userDescription || "Temporada 28 // R1 // L0";
+    const safeDesc = userDescription || `${DESTINY_DEFAULT_SEASON} // R1 // L0`;
     const safeElogios = elogios || "0";
-    const safeUsername = username || "cabotercero";
+    const safeUsername = username || "Miembro de Britannia";
 
     return `
       <style>
@@ -194,8 +197,8 @@ export const DestinyLayout = {
                         <span class="section-header">Triunfos</span>
                         <div class="card">
                            <div class="card-icon" style="background:radial-gradient(circle, #5a7 0%, #234 100%);"></div>
-                           <span class="card-title">Temporada 28</span>
-                           <span class="card-sub">Sin Ley</span>
+                           <span class="card-title">${DESTINY_DEFAULT_SEASON}</span>
+                           <span class="card-sub">${DESTINY_DEFAULT_SEASON_TITLE}</span>
                         </div>
                      </div>
                   </div>

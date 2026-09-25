@@ -1,15 +1,12 @@
 ---
 import { Image } from "astro:assets";
+import type { GalleryItem } from "../types";
+import { siteConfig } from "../data/siteConfig.ts";
 
-export interface GalleryItem {
-  id: string;
-  src: any;
-  title?: string;
-  subtitle?: string;
-}
+export type { GalleryItem };
 
 export interface Props {
-  items?: any[];
+  items?: GalleryItem[];
   columns?: number;
   variant?: string;
   layout?: any;
@@ -17,34 +14,17 @@ export interface Props {
   caption?: string | null;
 }
 
-const defaultItems = [
-  {
-    id: "morty-hero",
-    src: "/assets/mortySpawn.webp",
-    title: "Morty Spawn",
-    subtitle: "Galería",
-  },
-  { id: "mosaic-1", src: "/assets/torrebrujo.png", title: "Torre de Brujo" },
-  { id: "mosaic-2", src: "/assets/bar.png", title: "Barra de Brujo" },
-  { id: "mosaic-3", src: "assets/estatualaus.png", title: "Estatua de Laus" },
-  {
-    id: "mosaic-4",
-    src: "assets/centroplots.png",
-    title: "Centro de la ciudad",
-  },
-  { id: "mosaic-5", src: "assets/dragones.png", title: "Imagen 5" },
-  { id: "mosaic-6", src: "assets/dragones.png", title: "Imagen 6" },
-  { id: "mosaic-7", src: "assets/dragones.png", title: "Imagen 7" },
-];
+const defaultCaption = `Spawn Britannia ${siteConfig.server?.networkName || ""}`.trim();
 
 const {
-  items = defaultItems,
+  items = [],
   columns = 6,
   variant = items.length === 1 ? "hero" : "mosaic",
   layout = null,
   caption = null,
 } = Astro.props;
 const uid = "gal-" + Math.random().toString(36).slice(2);
+const activeCaption = caption ?? defaultCaption;
 ---
 
 <section
@@ -65,12 +45,12 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
               width={1200}
               height={600}
               loading="eager"
-              src={items[0]?.src || "/assets/servi.webp"}
+              src={(items[0]?.src as any) || "/assets/servi.webp"}
             />
           </div>
           <div class="gallery-overlay" aria-hidden="true" />
           <div class="hero-caption-inline">
-            {caption ?? "Spawn Britannia CocoCraft"}
+            {activeCaption}
           </div>
         </article>
       )
@@ -86,7 +66,7 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
   }
 </section>
 
-<script type="module" define:vars={{ uid, layout, caption }}>
+<script type="module" define:vars={{ uid, layout, caption: activeCaption }}>
   // Esperar a DOMContentLoaded para asegurarnos de que Astro ya montó el HTML
   window.addEventListener("DOMContentLoaded", () => {
     // console.log("[gallery] DOM ready");
@@ -186,7 +166,7 @@ const uid = "gal-" + Math.random().toString(36).slice(2);
             mode: "gallery",
             items: itemsData,
             layout: layout,
-            caption: caption || "Spawn Britannia CocoCraft",
+            caption: caption,
           });
         } else {
           island.setAttribute("mode", "gallery");

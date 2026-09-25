@@ -1,5 +1,5 @@
 import { z } from "astro/zod";
-import type { MemberSkin, GalleryItem } from "../types";
+import type { MemberSkin, GalleryItem, SiteConfig } from "../types";
 
 /**
  * Zod schema for member skins
@@ -40,6 +40,44 @@ export const galleryItemSchema = z.object({
   ]),
   title: z.string(),
   subtitle: z.string(),
+  category: z.string().optional(),
+});
+
+/**
+ * Zod schema for site configuration
+ */
+export const siteConfigSchema = z.object({
+  server: z
+    .object({
+      networkName: z.string(),
+      ip: z.string(),
+      bedrockIp: z.string().optional(),
+      bedrockPort: z.number().optional(),
+      gameMode: z.string().optional(),
+      version: z.string().optional(),
+    })
+    .optional(),
+  community: z.object({
+    discord: z.string(),
+    twitter: z.string().optional(),
+    youtube: z.string().optional(),
+    tiktok: z.string().optional(),
+  }),
+  branding: z.object({
+    name: z.string(),
+    tagline: z.string(),
+    copyright: z.string(),
+  }),
+  seo: z.object({
+    siteName: z.string(),
+    title: z.string(),
+    description: z.string(),
+    keywords: z.array(z.string()),
+    author: z.string(),
+    url: z.string(),
+    ogImage: z.string(),
+    locale: z.string(),
+  }),
 });
 
 /**
@@ -54,4 +92,11 @@ export function validateMemberSkins(data: unknown[]): MemberSkin[] {
  */
 export function validateGalleryItems(data: unknown[]): GalleryItem[] {
   return z.array(galleryItemSchema).parse(data) as GalleryItem[];
+}
+
+/**
+ * Validation helper for site config
+ */
+export function validateSiteConfig(data: unknown): SiteConfig {
+  return siteConfigSchema.parse(data) as SiteConfig;
 }

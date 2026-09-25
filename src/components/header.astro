@@ -1,11 +1,13 @@
 ---
-const title = "BRITANNIA";
+import { siteConfig } from "../data/siteConfig.ts";
+
+const title = siteConfig.branding.name.toUpperCase();
 const letters = title.split("");
 ---
 
 <header class="header" role="banner">
     <div class="contenedor">
-        <a href="/" class="texto" aria-label="Britannia - Inicio">
+        <a href="/" class="texto" aria-label={`${siteConfig.branding.name} - Inicio`}>
             {
                 letters.map((letra, i) => (
                     <span style={`--i: ${i};`}>{letra}</span>
