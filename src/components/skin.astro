@@ -1,5 +1,6 @@
 ---
 import type { MemberSkin } from "../types";
+import { resolveSkinUrl, normalizeRank } from "../data/skinsData.ts";
 
 interface Props {
   skinsToDisplay: MemberSkin[];
@@ -19,11 +20,21 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
 
 <div id={containerId} class="skin-viewers-container">
   {
-    skinsToDisplay.map((skin) => (
-      <div class="skin-item" data-skin-config={JSON.stringify(skin)}>
-        <canvas id={skin.id} style="pointer-events: none;" />
-      </div>
-    ))
+    skinsToDisplay.map((skin) => {
+      const resolvedConfig = {
+        ...skin,
+        skinPath: resolveSkinUrl(skin),
+      };
+      return (
+        <div
+          class="skin-item"
+          data-skin-config={JSON.stringify(resolvedConfig)}
+          data-rank={normalizeRank(skin.rankTitle)}
+        >
+          <canvas id={skin.id} style="pointer-events: none;" />
+        </div>
+      );
+    })
   }
 </div>
 
@@ -70,7 +81,12 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
       });
 
       // Explicitly load skin and catch every possible error
-      skinViewer.loadSkin(skinConfig.skinPath).catch((e) => {
+      const skinUrl =
+        skinConfig.skinPath ||
+        (skinConfig.username
+          ? `https://mineskin.eu/skin/${encodeURIComponent(skinConfig.username)}`
+          : "/assets/servi.webp");
+      skinViewer.loadSkin(skinUrl).catch((e) => {
         console.error("Grid skin load failed:", e);
       });
     } catch (e) {
@@ -169,7 +185,11 @@ const containerId = `skin-container-${Math.random().toString(36).slice(2, 11)}`;
           if (lightbox) {
             const itemData = {
               id: config.id,
-              src: config.skinPath,
+              src:
+                config.skinPath ||
+                (config.username
+                  ? `https://mineskin.eu/skin/${encodeURIComponent(config.username)}`
+                  : "/assets/servi.webp"),
               title: "Guardian",
               subtitle: "Destiny View",
               ...config,

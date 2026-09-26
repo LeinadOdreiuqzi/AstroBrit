@@ -213,8 +213,16 @@ export const DestinyLayout = {
     `;
   },
 
-  init(shadowRoot: ShadowRoot, data: { src: string }, onClose: () => void): Promise<any> {
-    const { src } = data;
+  init(
+    shadowRoot: ShadowRoot,
+    data: { src?: string; username?: string },
+    onClose: () => void,
+  ): Promise<any> {
+    const src =
+      data.src ||
+      (data.username
+        ? `https://mineskin.eu/skin/${encodeURIComponent(data.username)}`
+        : "/assets/servi.webp");
     const closeBtn = shadowRoot.querySelector(".box-close");
     closeBtn?.addEventListener("click", onClose);
 

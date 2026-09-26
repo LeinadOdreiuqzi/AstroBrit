@@ -188,3 +188,48 @@ export const developmentSkin: MemberSkin[] = [
     elogios: 9999,
   },
 ];
+
+/**
+ * Filter options for Britannia member ranks
+ */
+export interface RankFilterOption {
+  id: string;
+  label: string;
+}
+
+export const memberRanks: RankFilterOption[] = [
+  { id: "all", label: "Todos" },
+  { id: "leyenda", label: "Leyenda" },
+  { id: "elite", label: "Élite" },
+  { id: "heroe", label: "Héroe" },
+  { id: "aventurero", label: "Aventurero" },
+];
+
+/**
+ * Normalizes a rank title string for robust filtering and data matching.
+ * Handles accents, uppercase, and trimming (e.g. "Élite" -> "elite").
+ */
+export function normalizeRank(rank?: string): string {
+  return (rank || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+/**
+ * Resolves the 3D skin texture URL from either local path or Minecraft username.
+ * Supports hybrid resolution:
+ * 1. Explicit local/imported or remote skinPath
+ * 2. Automatic fallback using Minecraft username via Mineskin CDN
+ * 3. Fallback placeholder texture
+ */
+export function resolveSkinUrl(skin: { skinPath?: string; username?: string }): string {
+  if (skin.skinPath && skin.skinPath.trim() !== "") {
+    return skin.skinPath;
+  }
+  if (skin.username && skin.username.trim() !== "") {
+    return `https://mineskin.eu/skin/${encodeURIComponent(skin.username)}`;
+  }
+  return "/assets/servi.webp";
+}

@@ -19,7 +19,7 @@ export type SkinAnimationName =
  */
 export interface MemberSkin {
   id: string;
-  skinPath: string;
+  skinPath?: string;
   animation?: SkinAnimationName;
   autoRotate?: boolean;
   cameraLightIntensity?: number;

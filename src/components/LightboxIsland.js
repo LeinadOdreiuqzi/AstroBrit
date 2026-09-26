@@ -266,7 +266,12 @@ class LightboxIsland extends HTMLElement {
     if (this._mode === "destiny") {
       // --- DESTINY MODE RENDER ---
       const item = (items[0] && items[0].data) || {};
-      const src = item.src || item.skinPath || "/assets/servi.webp";
+      const src =
+        item.src ||
+        item.skinPath ||
+        (item.username
+          ? `https://mineskin.eu/skin/${encodeURIComponent(item.username)}`
+          : "/assets/servi.webp");
       const { rank, rankTitle, userDescription, elogios, username } = item;
 
       const html = DestinyLayout.getHTML({ src, rank, rankTitle, userDescription, elogios, username });
