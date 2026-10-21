@@ -1,8 +1,8 @@
 <!-- Fondo principal -->
 <div id="main-background"></div>
 
-<!-- Animación de frames -->
-<div id="frames-animation"></div>
+<!-- Animación de frames (Canvas acelerado por GPU) -->
+<canvas id="frames-animation" width="1920" height="991" aria-hidden="true"></canvas>
 
 <!-- Capa de gradiente (mantenida para compatibilidad) -->
 <div id="gradient-layer"></div>
@@ -44,8 +44,9 @@
     ScrollTrigger.refresh();
   });
 
-  // Cargar y configurar la animación de frames
-  const framesContainer = document.getElementById("frames-animation");
+  // Cargar y configurar la animación de frames en Canvas (0 nodos DOM extra, GPU nativa)
+  const canvas = document.getElementById("frames-animation") as HTMLCanvasElement | null;
+  const ctx = canvas ? canvas.getContext("2d", { alpha: false }) : null;
   const totalFrames = 89;
   let currentFrame = 0;
   const frames: (HTMLImageElement | undefined)[] = new Array(totalFrames);
@@ -59,50 +60,40 @@
   function createFrameImg(i: number): HTMLImageElement {
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = `/assets/frames/1 (${i}).webp`;
-    img.alt = `Frame ${i}`;
-    img.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      display: none;
-      pointer-events: none;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-    `;
+    img.src = `/assets/frames/${i}.webp`;
     return img;
+  }
+
+  // Dibuja el frame especificado en el canvas de forma instantánea
+  function drawFrame(img: HTMLImageElement, frameIndex: number) {
+    if (!ctx || !canvas) return;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    currentFrame = frameIndex;
+    lastRenderedFrame = frameIndex;
   }
 
   // Carga inmediata del frame inicial para un First Paint instantáneo (<50ms)
   function loadInitialFrame(): Promise<void> {
     return new Promise<void>((resolve) => {
-      if (!framesContainer) {
-        resolve();
-        return;
-      }
       const img = createFrameImg(1);
-      img.onload = () => {
-        img.style.display = "block";
-        img.style.opacity = "1";
-        framesContainer?.appendChild(img);
-        frames[0] = img;
+      frames[0] = img;
+
+      const onReady = () => {
+        drawFrame(img, 0);
         resolve();
       };
-      img.onerror = () => {
-        framesContainer?.appendChild(img);
-        frames[0] = img;
-        resolve();
-      };
+
+      if (img.complete && img.naturalWidth > 0) {
+        onReady();
+      } else {
+        img.onload = onReady;
+        img.onerror = () => resolve();
+      }
     });
   }
 
-  // Precargar frames restantes progresivamente en background durante tiempo ocioso
+  // Precargar frames restantes en background en memoria pura (sin inyectar al DOM)
   function preloadRemainingFrames() {
-    if (!framesContainer) return;
     let nextIndex = 2; // frames 2 a 89
     const batchSize = 6;
 
@@ -111,10 +102,8 @@
       const end = Math.min(nextIndex + batchSize, totalFrames + 1);
       for (let i = nextIndex; i < end; i++) {
         const frameIdx = i - 1;
-        if (!frames[frameIdx] && framesContainer) {
-          const img = createFrameImg(i);
-          framesContainer.appendChild(img);
-          frames[frameIdx] = img;
+        if (!frames[frameIdx]) {
+          frames[frameIdx] = createFrameImg(i);
         }
       }
       nextIndex = end;
@@ -135,29 +124,32 @@
   }
 
   function showFrame(frameIndex: number) {
-    if (frameIndex === lastRenderedFrame) return;
+    if (frameIndex === lastRenderedFrame || !ctx || !canvas) return;
 
     let targetFrame = frames[frameIndex];
-    if (!targetFrame && framesContainer) {
+    if (!targetFrame) {
       targetFrame = createFrameImg(frameIndex + 1);
-      framesContainer.appendChild(targetFrame);
       frames[frameIndex] = targetFrame;
     }
 
-    if (!targetFrame) return;
+    // Si aún está cargando el archivo, esperar a que complete
+    if (!targetFrame.complete || targetFrame.naturalWidth === 0) {
+      targetFrame.onload = () => {
+        if (currentFrame === frameIndex) {
+          drawFrame(targetFrame!, frameIndex);
+        }
+      };
+      return;
+    }
+
     if (isAnimating) return;
     isAnimating = true;
 
     requestAnimationFrame(() => {
       try {
-        const prevFrame = frames[currentFrame];
-        if (prevFrame && currentFrame !== frameIndex) {
-          prevFrame.style.display = "none";
+        if (targetFrame) {
+          drawFrame(targetFrame, frameIndex);
         }
-        targetFrame.style.display = "block";
-        targetFrame.style.opacity = "1";
-        currentFrame = frameIndex;
-        lastRenderedFrame = frameIndex;
       } catch (error) {
         console.error("Error in showFrame:", error);
       } finally {
@@ -362,9 +354,6 @@
               duration: 0.8,
               ease: "power2.inOut",
               onComplete: () => {
-                frames.forEach((frame) => {
-                  if (frame) frame.style.display = "none";
-                });
                 // Reinicia el estado para futuras entradas
                 setTimeout(() => (isHiding = false), 1000);
               },
@@ -378,10 +367,6 @@
             duration: 0.5,
             ease: "power2.in",
             onComplete: () => {
-              // Asegurarse de que todos los frames estén ocultos
-              frames.forEach((frame) => {
-                if (frame) frame.style.display = "none";
-              });
               activateSecondTimeline();
             },
           });
