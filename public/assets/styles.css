@@ -403,7 +403,7 @@ body {
 #galeria .section-container,
 .gallery-hero-carousel {
   position: relative;
-  max-width: min(94vw, 1360px);
+  max-width: min(90vw, 1140px);
   margin: 0 auto;
   width: 100%;
   outline: none;
@@ -413,14 +413,21 @@ body {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: clamp(520px, 68vh, 760px);
-  max-height: 780px;
+  min-height: 460px;
+  max-height: 640px;
   height: auto;
   overflow: hidden;
   border-radius: 16px;
   background: #0e0e0e;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   transform-style: preserve-3d;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.gallery-hero-carousel:hover .carousel-viewport {
+  border-color: rgba(255, 107, 0, 0.22);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 107, 0, 0.08);
 }
 
 .carousel-slide {
@@ -435,9 +442,8 @@ body {
   pointer-events: none;
   cursor: pointer;
   overflow: hidden;
-  transform-style: preserve-3d;
   box-sizing: border-box;
-  will-change: transform, opacity;
+  will-change: opacity;
 }
 
 .carousel-slide.is-active {
@@ -453,6 +459,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .carousel-slide .gallery-media img {
@@ -566,8 +574,8 @@ body {
 @media (max-width: 768px) {
   .carousel-viewport {
     aspect-ratio: 16 / 10;
-    min-height: clamp(360px, 55vh, 480px);
-    max-height: 520px;
+    min-height: clamp(340px, 50vh, 440px);
+    max-height: 480px;
     height: auto;
   }
 
