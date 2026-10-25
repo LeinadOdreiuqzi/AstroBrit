@@ -1,7 +1,7 @@
 ---
 import Section from "./common/Section.astro";
 import Galeria from "../components/Galeria.astro";
-import { galleryItems, galleryLayout } from "../data/galleryData.ts";
+import { galleryLayout, galleryCollections } from "../data/galleryData.ts";
 import { siteConfig } from "../data/siteConfig.ts";
 import { historyData } from "../data/historyData.ts";
 
@@ -30,7 +30,7 @@ const networkTitle = siteConfig.server?.networkName
   title={networkTitle}
   divider={true}
 >
-  <Galeria items={galleryItems} layout={galleryLayout} variant="hero" />
+  <Galeria collections={galleryCollections} layout={galleryLayout} variant="hero" />
 </Section>
 
 <style>

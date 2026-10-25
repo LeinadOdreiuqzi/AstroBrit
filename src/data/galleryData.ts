@@ -1,4 +1,4 @@
-import type { GalleryItem, GalleryLayoutEntry } from "../types";
+import type { GalleryItem, GalleryLayoutEntry, GalleryCollection } from "../types";
 
 // Import assets
 import Cocospawn from "../assets/Cocospawn.webp";
@@ -13,8 +13,11 @@ import Erebor from "../assets/erebor.webp";
 import ElArbol from "../assets/elarbol.webp";
 import Coliseo from "../assets/coliseo.webp";
 import Caballero from "../assets/caballero.webp";
+import MortySpawn from "../assets/mortySpawn.webp";
+import Centro from "../assets/centro.webp";
+import servi from "../assets/spawnServicraft.png";
 
-export type { GalleryItem, GalleryLayoutEntry };
+export type { GalleryItem, GalleryLayoutEntry, GalleryCollection };
 
 export const galleryCategories = [
   { id: "todos", label: "Todas" },
@@ -128,3 +131,34 @@ export function getItemsByCategory(category?: string): GalleryItem[] {
   if (!category || category === "todos") return galleryItems;
   return galleryItems.filter((item) => item.category === category);
 }
+
+/**
+ * Colecciones de galerías para el carrusel de la antesala.
+ * Permite alternar entre diferentes servidores y épocas de Britannia.
+ */
+export const galleryCollections: GalleryCollection[] = [
+  {
+    id: "cococraft",
+    title: "Britannia en Cococraft",
+    caption: "Spawn Britannia Cococraft",
+    heroImage: Cocospawn,
+    layout: galleryLayout,
+    items: galleryItems,
+  },
+  {
+    id: "mortycraft",
+    title: "Britannia en Mortycraft",
+    caption: "Spawn Britannia Mortycraft",
+    heroImage: MortySpawn,
+    layout: galleryLayout,
+    items: [],
+  },
+  {
+    id: "servicraft",
+    title: "Britannia en Servicraft",
+    caption: "Spawn Britannia Servicraft",
+    heroImage: servi,
+    layout: galleryLayout,
+    items: [],
+  },
+];

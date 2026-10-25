@@ -57,6 +57,18 @@ export interface GalleryLayoutEntry {
 }
 
 /**
+ * Gallery collection/album definition for multi-gallery carousel
+ */
+export interface GalleryCollection {
+  id: string;
+  title: string;
+  caption: string;
+  heroImage: ImageMetadata | string;
+  items: GalleryItem[];
+  layout?: GalleryLayoutEntry[];
+}
+
+/**
  * Ranks and progression hierarchy in BritanniaMC
  */
 export interface DestinyRank {

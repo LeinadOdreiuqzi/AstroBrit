@@ -1,12 +1,13 @@
 ---
 import { Image } from "astro:assets";
-import type { GalleryItem } from "../types";
+import type { GalleryItem, GalleryCollection } from "../types";
 import { siteConfig } from "../data/siteConfig.ts";
 
-export type { GalleryItem };
+export type { GalleryItem, GalleryCollection };
 
 export interface Props {
   items?: GalleryItem[];
+  collections?: GalleryCollection[];
   columns?: number;
   variant?: string;
   layout?: any;
@@ -18,41 +19,122 @@ const defaultCaption = `Spawn Britannia ${siteConfig.server?.networkName || ""}`
 
 const {
   items = [],
+  collections = [],
   columns = 6,
-  variant = items.length === 1 ? "hero" : "mosaic",
+  variant = collections.length > 0 || items.length === 1 ? "hero" : "mosaic",
   layout = null,
   caption = null,
 } = Astro.props;
+
 const uid = "gal-" + Math.random().toString(36).slice(2);
 const activeCaption = caption ?? defaultCaption;
+
+// Normalizar las colecciones para el modo carrusel de la antesala
+const activeGalleries: GalleryCollection[] =
+  collections && collections.length > 0
+    ? collections
+    : [
+        {
+          id: "default-gallery",
+          title: siteConfig.server?.networkName
+            ? `Britannia en ${siteConfig.server.networkName}`
+            : "Construcciones de Britannia",
+          caption: activeCaption,
+          heroImage: (items[0]?.src as any) || "/assets/servi.webp",
+          items: items,
+          layout: layout,
+        },
+      ];
 ---
 
 <section
   class={`gallery gallery--${variant}`}
-  aria-label="Galería de imágenes"
+  aria-label="Galerías de Britannia"
   data-items={JSON.stringify(items)}
   data-uid={uid}
+  data-layout={JSON.stringify(layout)}
+  data-caption={activeCaption}
 >
   {
     variant === "hero" ? (
       Astro.slots.has("hero") ? (
         <slot name="hero" />
       ) : (
-        <article class="gallery-item gallery-item--hero" data-id="hero-image">
-          <div class="gallery-media">
-            <Image
-              alt={items[0]?.title ?? "Imagen"}
-              width={1200}
-              height={600}
-              loading="eager"
-              src={(items[0]?.src as any) || "/assets/servi.webp"}
-            />
+        <div class="gallery-hero-carousel" data-uid={uid}>
+          <div class="carousel-viewport">
+            {activeGalleries.map((gal, idx) => (
+              <article
+                class={`carousel-slide ${idx === 0 ? "is-active" : ""}`}
+                data-index={idx}
+                data-id={gal.id}
+                data-title={gal.title}
+                data-caption={gal.caption}
+                data-items={JSON.stringify(gal.items)}
+                data-layout={JSON.stringify(gal.layout || layout)}
+                tabindex="0"
+                role="button"
+                aria-label={`Abrir galería: ${gal.title}`}
+              >
+                <div class="gallery-media">
+                  <Image
+                    alt={gal.title}
+                    width={1200}
+                    height={680}
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    src={(gal.heroImage as any) || "/assets/servi.webp"}
+                  />
+                </div>
+                <div class="gallery-overlay" aria-hidden="true" />
+
+                <div class="hero-caption-inline">
+                  {gal.caption || activeCaption}
+                </div>
+              </article>
+            ))}
+
+            <!-- Botones de navegación (Flechas izquierda / derecha) -->
+            {activeGalleries.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  class="carousel-btn carousel-btn--prev"
+                  aria-label="Galería anterior"
+                  data-action="prev"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="carousel-btn carousel-btn--next"
+                  aria-label="Siguiente galería"
+                  data-action="next"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </>
+            )}
+
+            <!-- Indicadores inferiores -->
+            {activeGalleries.length > 1 && (
+              <div class="carousel-indicators" role="tablist" aria-label="Selector de galería">
+                {activeGalleries.map((gal, idx) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    class={`carousel-dot ${idx === 0 ? "active" : ""}`}
+                    data-slide-target={idx}
+                    aria-label={`Ir a ${gal.title}`}
+                    aria-selected={idx === 0 ? "true" : "false"}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <div class="gallery-overlay" aria-hidden="true" />
-          <div class="hero-caption-inline">
-            {activeCaption}
-          </div>
-        </article>
+        </div>
       )
     ) : (
       <div
@@ -66,223 +148,344 @@ const activeCaption = caption ?? defaultCaption;
   }
 </section>
 
-<script type="module" define:vars={{ uid, layout, caption: activeCaption }}>
-  // Esperar a DOMContentLoaded para asegurarnos de que Astro ya montó el HTML
-  window.addEventListener("DOMContentLoaded", () => {
-    // console.log("[gallery] DOM ready");
+<script>
+  import gsap from "gsap";
 
-    const galleryRoot = document.querySelector(`.gallery[data-uid="${uid}"]`);
-    if (!galleryRoot) {
-      console.error("[gallery] .gallery no encontrada");
-      return;
-    }
+  function setupCarousels() {
+    const carousels = document.querySelectorAll<HTMLElement>(".gallery-hero-carousel");
 
-    const isHero = !!galleryRoot.querySelector(".gallery-item--hero");
-    let itemsData = [];
+    carousels.forEach((carousel) => {
+      // Evitar doble inicialización
+      if (carousel.dataset.initialized === "true") return;
+      carousel.dataset.initialized = "true";
 
-    try {
-      itemsData = JSON.parse(galleryRoot.dataset.items || "[]");
-      // console.log("[gallery] itemsData:", itemsData);
-    } catch (err) {
-      console.warn("[gallery] error parseando data-items", err);
-      itemsData = [];
-    }
+      const viewport = carousel.querySelector<HTMLElement>(".carousel-viewport");
+      const slides = Array.from(carousel.querySelectorAll<HTMLElement>(".carousel-slide"));
+      const prevBtn = carousel.querySelector<HTMLButtonElement>(".carousel-btn--prev");
+      const nextBtn = carousel.querySelector<HTMLButtonElement>(".carousel-btn--next");
+      const dots = Array.from(carousel.querySelectorAll<HTMLButtonElement>(".carousel-dot"));
 
-    if (isHero) {
-      const hero = galleryRoot.querySelector(".gallery-item--hero");
-      const overlay = hero?.querySelector(".gallery-overlay");
+      if (!viewport || slides.length === 0) return;
 
-      if (!hero) {
-        console.error("[gallery] hero no encontrado");
-        return;
+      let currentIndex = 0;
+      let isTransitioning = false;
+
+      // Animación inicial del primer slide
+      if (slides[0]) {
+        gsap.fromTo(
+          slides[0],
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.75, ease: "power3.out" }
+        );
       }
-      // island-based lightbox: no DOM prerequisites
 
-      // Inicial
-      const g = window.gsap;
-      if (g) {
+      // Función para abrir Lightbox
+      const openLightbox = (slideEl: HTMLElement) => {
+        const island = document.getElementById("global-lightbox") as any;
+        if (!island || !slideEl) return;
+
+        let itemsData = [];
+        let slideLayout = null;
+        let slideCaption = "";
+
         try {
-          g.set(overlay, { autoAlpha: 0 });
+          itemsData = JSON.parse(slideEl.dataset.items || "[]");
+        } catch {
+          itemsData = [];
+        }
+
+        try {
+          if (slideEl.dataset.layout) {
+            slideLayout = JSON.parse(slideEl.dataset.layout);
+          }
         } catch {}
-        try {
-          g.from(hero, {
-            y: 30,
-            autoAlpha: 0,
-            duration: 0.8,
-            ease: "power3.out",
+
+        slideCaption = slideEl.dataset.caption || "";
+
+        // Si la galería está vacía temporalmente, no abrimos el lightbox
+        if (!itemsData || itemsData.length === 0) {
+          return;
+        }
+
+        if (typeof island.setData === "function") {
+          island.setData({
+            mode: "gallery",
+            items: itemsData,
+            layout: slideLayout,
+            caption: slideCaption,
           });
-        } catch {}
-      }
+        } else {
+          island.setAttribute("mode", "gallery");
+          island.setAttribute("items", JSON.stringify(itemsData));
+          island.setAttribute("layout", JSON.stringify(slideLayout));
+        }
 
+        if (typeof island.open === "function") island.open();
+        else island.setAttribute("open", "");
+      };
+
+      // Clic en slide para ver galería
+      slides.forEach((slide) => {
+        slide.addEventListener("click", (e) => {
+          if (isTransitioning) return;
+          const target = e.target as HTMLElement;
+          if (target.closest(".carousel-btn") || target.closest(".carousel-dot")) return;
+          openLightbox(slide);
+        });
+
+        slide.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openLightbox(slide);
+          }
+        });
+      });
+
+      // Transición cinematográfica entre slides
+      const goToSlide = (targetIndex: number, direction: number = 1) => {
+        if (isTransitioning || targetIndex === currentIndex || !slides[targetIndex]) return;
+        isTransitioning = true;
+
+        const currentSlide = slides[currentIndex];
+        const nextSlide = slides[targetIndex];
+
+        // Resetear tilt
+        gsap.set([currentSlide, nextSlide], { rotationX: 0, rotationY: 0 });
+
+        // Actualizar el título de la sección si existe en la página
+        const sectionTitle = carousel.closest("#galeria")?.querySelector<HTMLElement>(".section-title") || document.querySelector<HTMLElement>("#galeria .section-title");
+        if (sectionTitle && nextSlide.dataset.title) {
+          gsap.to(sectionTitle, {
+            opacity: 0,
+            y: -8,
+            duration: 0.18,
+            onComplete: () => {
+              sectionTitle.textContent = nextSlide.dataset.title || "";
+              gsap.to(sectionTitle, { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" });
+            },
+          });
+        }
+
+        // Colocar nextSlide encima y preparar visibilidad
+        nextSlide.classList.add("is-active");
+        gsap.set(nextSlide, { zIndex: 3, visibility: "visible", pointerEvents: "none" });
+        gsap.set(currentSlide, { zIndex: 2, pointerEvents: "none" });
+
+        // Salida de slide actual
+        gsap.to(currentSlide, {
+          xPercent: direction > 0 ? -30 : 30,
+          opacity: 0,
+          scale: 0.95,
+          duration: 0.48,
+          ease: "power2.inOut",
+        });
+
+        // Entrada del nuevo slide
+        gsap.fromTo(
+          nextSlide,
+          {
+            xPercent: direction > 0 ? 35 : -35,
+            opacity: 0,
+            scale: 1.05,
+          },
+          {
+            xPercent: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.54,
+            ease: "power3.out",
+            onComplete: () => {
+              currentSlide.classList.remove("is-active");
+              gsap.set(currentSlide, { clearProps: "all" });
+              gsap.set(nextSlide, { clearProps: "all" });
+              isTransitioning = false;
+            },
+          }
+        );
+
+        // Actualizar dots
+        dots.forEach((dot, idx) => {
+          const isActive = idx === targetIndex;
+          dot.classList.toggle("active", isActive);
+          dot.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+
+        currentIndex = targetIndex;
+      };
+
+      // Botón Anterior
+      prevBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const prev = (currentIndex - 1 + slides.length) % slides.length;
+        goToSlide(prev, -1);
+      });
+
+      // Botón Siguiente
+      nextBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const next = (currentIndex + 1) % slides.length;
+        goToSlide(next, 1);
+      });
+
+      // Dots
+      dots.forEach((dot) => {
+        dot.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const target = Number(dot.dataset.slideTarget ?? 0);
+          if (target !== currentIndex) {
+            goToSlide(target, target > currentIndex ? 1 : -1);
+          }
+        });
+      });
+
+      // Efecto 3D Tilt en el slide activo
       let rAF = 0;
-      hero.addEventListener("pointermove", (e) => {
-        if (rAF) return;
+      viewport.addEventListener("pointermove", (e: PointerEvent) => {
+        if (rAF || isTransitioning) return;
         rAF = requestAnimationFrame(() => {
-          const rect = hero.getBoundingClientRect();
+          const activeSlide = slides[currentIndex];
+          if (!activeSlide) {
+            rAF = 0;
+            return;
+          }
+          const rect = activeSlide.getBoundingClientRect();
           const cx = e.clientX - rect.left - rect.width / 2;
           const cy = e.clientY - rect.top - rect.height / 2;
-          const g = window.gsap;
-          if (g) {
-            try {
-              g.to(hero, {
-                rotationY: cx / 40,
-                rotationX: -cy / 40,
-                scale: 1.02,
-                duration: 0.18,
-                ease: "power2.out",
-              });
-              g.to(overlay, {
-                autoAlpha: 1,
-                duration: 0.2,
-                ease: "power2.out",
-              });
-            } catch {}
-          }
+          gsap.to(activeSlide, {
+            rotationY: cx / 38,
+            rotationX: -cy / 38,
+            scale: 1.015,
+            duration: 0.2,
+            ease: "power2.out",
+          });
           rAF = 0;
         });
       });
 
-      hero.addEventListener("pointerleave", () => {
-        const g = window.gsap;
-        if (g) {
-          try {
-            g.to(hero, {
-              rotationX: 0,
-              rotationY: 0,
-              scale: 1,
-              duration: 0.25,
-              ease: "power2.out",
-            });
-            g.to(overlay, { autoAlpha: 0, duration: 0.2 });
-          } catch {}
+      viewport.addEventListener("pointerleave", () => {
+        const activeSlide = slides[currentIndex];
+        if (activeSlide) {
+          gsap.to(activeSlide, {
+            rotationX: 0,
+            rotationY: 0,
+            scale: 1,
+            duration: 0.35,
+            ease: "power2.out",
+          });
         }
       });
-      hero.addEventListener("click", () => {
-        const island = document.getElementById("global-lightbox");
-        if (!island) return;
 
-        if (typeof island.setData === "function") {
-          island.setData({
-            mode: "gallery",
-            items: itemsData,
-            layout: layout,
-            caption: caption,
-          });
-        } else {
-          island.setAttribute("mode", "gallery");
-          island.setAttribute("items", JSON.stringify(itemsData));
-          island.setAttribute("layout", JSON.stringify(layout));
+      // Gestos Touch / Swipe
+      let touchStartX = 0;
+      viewport.addEventListener(
+        "touchstart",
+        (e: TouchEvent) => {
+          touchStartX = e.touches[0].clientX;
+        },
+        { passive: true }
+      );
+
+      viewport.addEventListener(
+        "touchend",
+        (e: TouchEvent) => {
+          const touchEndX = e.changedTouches[0].clientX;
+          const diffX = touchEndX - touchStartX;
+          if (Math.abs(diffX) > 40) {
+            if (diffX < 0) {
+              const next = (currentIndex + 1) % slides.length;
+              goToSlide(next, 1);
+            } else {
+              const prev = (currentIndex - 1 + slides.length) % slides.length;
+              goToSlide(prev, -1);
+            }
+          }
+        },
+        { passive: true }
+      );
+
+      // Teclas ← y →
+      carousel.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          const prev = (currentIndex - 1 + slides.length) % slides.length;
+          goToSlide(prev, -1);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          const next = (currentIndex + 1) % slides.length;
+          goToSlide(next, 1);
         }
-
-        if (typeof island.open === "function") island.open();
-        else island.setAttribute("open", "");
-      }); // fin hero click
-    } // fin isHero
-    else {
-      const grid = galleryRoot.querySelector("#gallery-grid");
-      if (!grid) {
-        console.error("[gallery] gallery-grid no encontrado");
-        return;
-      }
-
-      // siempre re-query para evitar listas stale
-      const getGridItems = () =>
-        Array.from(grid.querySelectorAll(".gallery-item"));
-      const gridItems = getGridItems();
-      {
-        const g = window.gsap;
-        if (g) {
-          try {
-            g.from(gridItems, {
-              y: 30,
-              autoAlpha: 0,
-              scale: 0.98,
-              duration: 0.7,
-              ease: "power3.out",
-              stagger: 0.05,
-            });
-          } catch {}
-        }
-      }
-
-      const shuffleGallery = () => {
-        const currentItems = getGridItems();
-        const FlipLib = window.Flip;
-        const g = window.gsap;
-        const state = FlipLib ? FlipLib.getState(currentItems) : null;
-        const shuffled =
-          g && g.utils
-            ? g.utils.shuffle([...currentItems])
-            : [...currentItems].sort(() => Math.random() - 0.5);
-        shuffled.forEach((el) => grid.appendChild(el));
-        if (FlipLib && state) {
-          FlipLib.from(state, {
-            duration: 0.6,
-            ease: "power2.inOut",
-            stagger: 0.02,
-          });
-        }
-      };
-
-      // llamada inicial (opcional)
-      shuffleGallery();
-
-      // exponer por consola si quieres
-      window.shuffleGallery = shuffleGallery;
-
-      grid.addEventListener("click", (e) => {
-        const item = e.target.closest(".gallery-item");
-        if (!item) return;
-        const island = document.getElementById("global-lightbox");
-        if (!island) return;
-
-        if (typeof island.setData === "function") {
-          island.setData({
-            mode: "gallery",
-            items: itemsData,
-            layout: layout,
-          });
-        } else {
-          island.setAttribute("mode", "gallery");
-          island.setAttribute("items", JSON.stringify(itemsData));
-          island.setAttribute("layout", JSON.stringify(layout));
-        }
-
-        if (typeof island.open === "function") island.open();
-        else island.setAttribute("open", "");
       });
-    }
-  }); // end DOMContentLoaded
+    });
+  }
+
+  // Inicialización limpia
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupCarousels);
+  } else {
+    setupCarousels();
+  }
 </script>
 
-<style>
+<style is:global>
+  /* === ESTILOS GLOBALES DE LA GALERÍA Y CARRUSEL === */
   .gallery {
     display: grid;
     gap: 12px;
+    width: 100%;
   }
 
   .gallery.gallery--hero {
     display: block;
   }
 
-  .gallery-item {
+  #galeria .section-container,
+  .gallery-hero-carousel {
     position: relative;
+    max-width: min(94vw, 1360px);
+    margin: 0 auto;
+    width: 100%;
+    outline: none;
+  }
+
+  .carousel-viewport {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: clamp(520px, 68vh, 760px);
+    max-height: 780px;
+    height: auto;
     overflow: hidden;
     border-radius: 16px;
     background: #0e0e0e;
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
     transform-style: preserve-3d;
-    will-change: transform;
-    box-sizing: border-box;
   }
 
-  .gallery-item--hero {
-    min-height: min(70vh, 680px);
+  .carousel-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     padding: 16px;
-    max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    cursor: pointer;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    box-sizing: border-box;
+    will-change: transform, opacity;
   }
-  .gallery-media {
+
+  .carousel-slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    z-index: 2;
+  }
+
+  .carousel-slide .gallery-media {
     width: 100%;
     height: 100%;
     display: flex;
@@ -290,14 +493,15 @@ const activeCaption = caption ?? defaultCaption;
     justify-content: center;
   }
 
-  .gallery-media img {
+  .carousel-slide .gallery-media img {
     width: 100%;
     height: 100%;
     display: block;
     object-fit: cover;
+    object-position: center top;
   }
 
-  .gallery-overlay {
+  .carousel-slide .gallery-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(
@@ -309,15 +513,125 @@ const activeCaption = caption ?? defaultCaption;
     pointer-events: none;
   }
 
-  .hero-caption-inline {
+  .carousel-slide .hero-caption-inline {
     position: absolute;
     left: 20px;
     bottom: 16px;
     color: #fff;
     font-weight: 700;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    margin: 0;
+    font-size: 1rem;
+    z-index: 5;
+    pointer-events: none;
   }
 
+  /* Botones de navegación (Flechas izquierda / derecha) */
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(14, 14, 14, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+  }
+
+  .carousel-btn:hover {
+    background: rgba(255, 107, 0, 0.25);
+    border-color: #ff6b00;
+    color: #ff8c33;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 24px rgba(255, 107, 0, 0.5);
+  }
+
+  .carousel-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .carousel-btn--prev {
+    left: 20px;
+  }
+
+  .carousel-btn--next {
+    right: 20px;
+  }
+
+  /* Indicadores / Dots inferiores */
+  .carousel-indicators {
+    position: absolute;
+    bottom: 24px;
+    right: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    border: none;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
+    outline: none;
+  }
+
+  .carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .carousel-dot.active {
+    width: 32px;
+    border-radius: 99px;
+    background: #ff6b00;
+    box-shadow: 0 0 14px rgba(255, 107, 0, 0.7);
+  }
+
+  /* Adaptación Responsive */
+  @media (max-width: 768px) {
+    .carousel-viewport {
+      aspect-ratio: 16 / 10;
+      min-height: clamp(360px, 55vh, 480px);
+      max-height: 520px;
+      height: auto;
+    }
+
+    .carousel-btn {
+      width: 42px;
+      height: 42px;
+    }
+
+    .carousel-btn--prev {
+      left: 10px;
+    }
+
+    .carousel-btn--next {
+      right: 10px;
+    }
+
+    .carousel-indicators {
+      bottom: 16px;
+      right: 18px;
+    }
+  }
+
+  /* === GRID MOSAICO TRADICIONAL === */
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(var(--columns, 6), minmax(0, 1fr));
@@ -345,8 +659,8 @@ const activeCaption = caption ?? defaultCaption;
     display: contents;
   }
 
-  :global(html.lb-open),
-  :global(body.lb-open) {
+  html.lb-open,
+  body.lb-open {
     overflow: hidden;
   }
 </style>
