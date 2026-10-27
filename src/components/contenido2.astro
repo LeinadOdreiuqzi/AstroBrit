@@ -4,6 +4,7 @@ import Galeria from "../components/Galeria.astro";
 import { galleryLayout, galleryCollections } from "../data/galleryData.ts";
 import { siteConfig } from "../data/siteConfig.ts";
 import { historyData } from "../data/historyData.ts";
+import bannerSvg from "../assets/minecraft-banner-britannia.svg";
 
 const networkTitle = siteConfig.server?.networkName
   ? `Britannia en ${siteConfig.server.networkName}`
@@ -37,9 +38,30 @@ const highlightHistoricalNames = (text: string) => {
         <span class="kicker-text">Crónica & Legado</span>
       </div>
 
-      <h1 class="chronicle-title">
-        {historyData.title}
-      </h1>
+      <div class="chronicle-title-banner-row">
+        <h1 class="chronicle-title">
+          {historyData.title}
+        </h1>
+
+        <!-- Estandarte Oficial alineado al nivel del título Bienvenido (sin etiqueta de texto) -->
+        <button
+          type="button"
+          id="btn-britannia-banner"
+          class="banner-button"
+          aria-label="Estandarte Oficial de Britannia"
+          title="Estandarte Oficial de Britannia"
+        >
+          <div class="banner-hanger" aria-hidden="true"></div>
+          <img
+            src={bannerSvg.src}
+            alt="Estandarte de Britannia"
+            class="banner-graphic"
+            width="44"
+            height="88"
+            loading="eager"
+          />
+        </button>
+      </div>
 
       <p class="chronicle-subtitle">
         {historyData.subtitle}
@@ -114,6 +136,7 @@ const highlightHistoricalNames = (text: string) => {
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    width: 100%;
   }
 
   .chronicle-kicker {
@@ -138,15 +161,70 @@ const highlightHistoricalNames = (text: string) => {
     color: var(--color-primary);
   }
 
+  .chronicle-title-banner-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    width: 100%;
+    margin-bottom: 0.65rem;
+  }
+
   .chronicle-title {
     font-size: clamp(2rem, 4.2vw, 3.2rem);
     line-height: 1.12;
     font-weight: 900;
-    margin: 0 0 0.65rem 0;
+    margin: 0;
     color: #ffffff;
     letter-spacing: -0.5px;
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+    flex: 1;
   }
+
+  /* Estandarte de Britannia (Alineado con el Bienvenido, estático) */
+  .banner-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    outline: none;
+    flex-shrink: 0;
+    margin-top: 4px;
+    user-select: none;
+  }
+
+  .banner-hanger {
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, #3d2514, #734522, #3d2514);
+    border-radius: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 2;
+  }
+
+  .banner-graphic {
+    display: block;
+    width: 44px;
+    height: 88px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+    user-select: none;
+  }
+
+  .banner-button:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+
 
   .chronicle-subtitle {
     font-size: clamp(1.05rem, 2vw, 1.25rem);
@@ -269,6 +347,19 @@ const highlightHistoricalNames = (text: string) => {
           start: "top 88%",
           once: true,
         },
+      });
+    }
+
+    // Manejador del botón del estandarte (preparado para futuras implementaciones)
+    const bannerBtn = document.getElementById("btn-britannia-banner");
+    if (bannerBtn) {
+      bannerBtn.addEventListener("click", () => {
+        window.dispatchEvent(
+          new CustomEvent("britannia:banner-click", {
+            detail: { id: "britannia-banner", timestamp: Date.now() },
+          })
+        );
+        console.log("Estandarte de Britannia activado (listo para futura implementación)");
       });
     }
   });
