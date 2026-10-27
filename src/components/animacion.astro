@@ -164,17 +164,14 @@
     if (secondTimelineContent) {
       gsap.set(secondTimelineContent, {
         opacity: 0,
-        x: "100%",
-        scale: 0.7,
-        rotationY: 45,
+        y: 20,
         visibility: "visible",
         pointerEvents: "none",
       });
-      // console.log("Segunda timeline inicializada y ocultada");
     }
   }
 
-  // Función para activar la segunda timeline con animaciones rápidas
+  // Función para activar la segunda timeline de forma fluida y natural
   const activateSecondTimeline = () => {
     if (firstTimelineComplete) {
       return;
@@ -182,107 +179,60 @@
 
     firstTimelineComplete = true;
     isHiding = false;
-    // console.log("Activando segunda timeline...");
 
     const secondTimelineContent = document.querySelector("main");
     const logoMask = document.querySelector("#logo-mask");
-    const logoText = document.querySelector("main .logo-text");
-    const title = document.querySelector("main .main-content h1");
-    const paragraphs = document.querySelectorAll("main .main-content p");
-    const skinBlock = document.querySelector("main .skin-component");
 
     if (!secondTimelineContent) {
-      console.error("No se encontró el contenido de la segunda timeline");
       return;
     }
 
-    // Timeline de entrada rápida y dinámica
     const entryTimeline = gsap.timeline({
-      ease: "power3.out",
+      ease: "power2.out",
     });
 
-    // 1. Ocultar logo-mask rápidamente
-    entryTimeline.to(logoMask, {
-      opacity: 0,
-      duration: 0.8,
-      ease: "power3.inOut",
-    });
-
-    // 2. Preparar el contenedor principal y sus elementos para la animación
-    entryTimeline.set(secondTimelineContent, {
-      pointerEvents: "auto",
-      zIndex: 100,
-      opacity: 1, // Asegurar que el contenedor principal sea visible
-      x: "0%",
-      scale: 1,
-      rotationY: 0,
-    });
-
-    // Establecer estados iniciales para los elementos individuales
-    if (logoText) {
-      gsap.set(logoText, { opacity: 0, y: 20 });
-    }
-    if (title) {
-      gsap.set(title, { opacity: 0, y: 30 });
-    }
-    if (paragraphs && paragraphs.length) {
-      paragraphs.forEach((p) => gsap.set(p, { opacity: 0, y: 30 }));
-    }
-    if (skinBlock) {
-      gsap.set(skinBlock, { opacity: 0, scale: 0.86 });
-    }
-
-    // 3. Animación de entrada de los bloques
-    entryTimeline.to(
-      logoText,
-      {
-        opacity: 1,
-        y: 0,
+    // 1. Ocultar logo-mask suavemente
+    if (logoMask) {
+      entryTimeline.to(logoMask, {
+        opacity: 0,
         duration: 0.6,
-        ease: "power3.out",
-      },
-      "<0.2",
-    );
+        ease: "power2.inOut",
+      });
+    }
 
+    // Ocultar canvas de frames para evitar que se transluzca
+    const framesAnim = document.querySelector("#frames-animation");
+    if (framesAnim) {
+      entryTimeline.to(
+        framesAnim,
+        {
+          opacity: 0,
+          duration: 0.4,
+          onComplete: () => {
+            gsap.set(framesAnim, { visibility: "hidden" });
+          },
+        },
+        "<",
+      );
+    }
+
+    // 2. Revelar suavemente el contenido principal en su sitio (sin tarjetas ni rotaciones 3D)
     entryTimeline.to(
-      title,
+      secondTimelineContent,
       {
         opacity: 1,
         y: 0,
-        duration: 0.7,
-        ease: "power3.out",
+        duration: 0.8,
+        ease: "power2.out",
+        onStart: () => {
+          gsap.set(secondTimelineContent, {
+            pointerEvents: "auto",
+            zIndex: 10,
+          });
+        },
       },
-      "<0.1",
+      "<0.15",
     );
-
-    if (paragraphs && paragraphs.length) {
-      entryTimeline.to(
-        paragraphs,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power3.out",
-          stagger: 0.06,
-        },
-        "<0.1",
-      );
-    }
-
-    if (skinBlock) {
-      entryTimeline.to(
-        skinBlock,
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          ease: "back.out(1.2)",
-        },
-        "<0.15",
-      );
-    }
-
-    // console.log("Segunda timeline activada completamente");
   };
 
   function initAnim() {
@@ -364,12 +314,10 @@
           // Ocultar #frames-animation gradualmente
           gsap.to("#frames-animation", {
             opacity: 0,
-            duration: 0.5,
+            duration: 0.4,
             ease: "power2.in",
-            onComplete: () => {
-              activateSecondTimeline();
-            },
           });
+          activateSecondTimeline();
 
           // Mostrar el header fijo
           const header = document.querySelector("header");
@@ -380,8 +328,6 @@
               duration: 0.5,
             });
           }
-
-          // La segunda timeline se activará de forma independiente
         },
         onEnterBack: () => {
           // Ocultar el header fijo al volver a subir
@@ -393,16 +339,23 @@
               duration: 0.8,
             });
           }
-          // Asegurarse de que la máscara vuelva a ser visible al hacer scroll hacia arriba
+          // Asegurarse de que la máscara y canvas vuelvan a ser visibles al hacer scroll hacia arriba
           gsap.set("#logo-mask", { opacity: 1 });
+          gsap.set("#frames-animation", { visibility: "visible" });
         },
         onLeaveBack: () => {
           // Restaurar el estado inicial de la primera animación
-          gsap.set("#frames-animation", { opacity: 1 });
+          firstTimelineComplete = false;
+          gsap.set("#frames-animation", { opacity: 1, visibility: "visible" });
           showFrame(0);
         },
       },
     });
+
+    // Si la página carga ya con scroll avanzado, activar directamente
+    if (window.scrollY >= scrollLen * 0.9) {
+      activateSecondTimeline();
+    }
 
     // Ajustar la posición de inicio de la animación de la máscara
     mainTimeline

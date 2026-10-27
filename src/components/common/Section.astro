@@ -16,7 +16,7 @@ const {
   subtitle,
   badge,
   variant = "default",
-  divider = true,
+  divider = false,
   align = "center",
   class: extraClass = "",
 } = Astro.props;
@@ -48,7 +48,7 @@ const {
   .modular-section {
     position: relative;
     width: 100%;
-    padding: var(--space-xl) var(--section-padding-x);
+    padding: clamp(2.5rem, 4vw, 3.5rem) var(--section-padding-x);
     transition: background-color 0.3s ease;
   }
 
@@ -73,17 +73,19 @@ const {
     background: transparent;
   }
 
-  /* Línea divisoria superior con degradado sutil */
+  /* Línea divisoria superior con degradado sutil alineada al ancho del contenido */
   .has-divider::before {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90vw, 1140px);
     height: 1px;
     background: linear-gradient(
       90deg,
       transparent,
+      rgba(255, 107, 0, 0.4),
       rgba(255, 255, 255, 0.12),
       transparent
     );
@@ -91,14 +93,14 @@ const {
   }
 
   .section-container {
-    max-width: var(--section-max-width, 1200px);
+    max-width: var(--section-max-width, 1140px);
     margin: 0 auto;
     width: 100%;
   }
 
   /* Encabezados de Sección */
   .section-header {
-    margin-bottom: var(--space-xl);
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);

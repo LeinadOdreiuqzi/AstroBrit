@@ -8,19 +8,70 @@ import { historyData } from "../data/historyData.ts";
 const networkTitle = siteConfig.server?.networkName
   ? `Britannia en ${siteConfig.server.networkName}`
   : "Construcciones de Britannia";
+
+// Resaltar sutilmente nombres de fundadores y veteranos dentro del relato histórico (sin cards ni badges)
+const highlightHistoricalNames = (text: string) => {
+  const allNames = [
+    ...(historyData.founders ?? []),
+    ...(historyData.veterans ?? []),
+  ];
+  if (!allNames.length) return text;
+  let output = text;
+  allNames.forEach((name) => {
+    const regex = new RegExp(`\\b${name}\\b`, "g");
+    output = output.replace(
+      regex,
+      `<span class="chronicle-name">${name}</span>`
+    );
+  });
+  return output;
+};
 ---
 
-<section id="historia" class="info-section section-container">
-  <div class="two-column-layout">
-    <div class="main-content">
-      <h1>{historyData.title}</h1>
-      <p class="subtitle">{historyData.subtitle}</p>
-
-      <div class="history-text">
-        {historyData.paragraphs.map((paragraph) => (
-          <p>{paragraph}</p>
-        ))}
+<section id="historia" class="chronicle-section">
+  <div class="chronicle-container">
+    <!-- Columna Izquierda: Identidad y ancla editorial sin encuadre -->
+    <div class="chronicle-anchor">
+      <div class="chronicle-kicker">
+        <span class="kicker-line"></span>
+        <span class="kicker-text">Crónica & Legado</span>
       </div>
+
+      <h1 class="chronicle-title">
+        {historyData.title}
+      </h1>
+
+      <p class="chronicle-subtitle">
+        {historyData.subtitle}
+      </p>
+
+      <div class="chronicle-meta">
+        {historyData.foundationYear && (
+          <div class="meta-item">
+            <span class="meta-label">Fundación</span>
+            <span class="meta-value">{historyData.foundationYear}</span>
+          </div>
+        )}
+        {historyData.foundationYear && historyData.founders && historyData.founders.length > 0 && (
+          <span class="meta-dot">·</span>
+        )}
+        {historyData.founders && historyData.founders.length > 0 && (
+          <div class="meta-item">
+            <span class="meta-label">Fundadores</span>
+            <span class="meta-value">{historyData.founders.join(" & ")}</span>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Relato narrativo continuo -->
+    <div class="chronicle-narrative">
+      {historyData.paragraphs.map((paragraph, index) => (
+        <p
+          class={index === 0 ? "narrative-lead" : "narrative-body"}
+          set:html={highlightHistoricalNames(paragraph)}
+        />
+      ))}
     </div>
   </div>
 </section>
@@ -28,59 +79,154 @@ const networkTitle = siteConfig.server?.networkName
 <Section
   id="galeria"
   title={networkTitle}
-  divider={true}
+  divider={false}
 >
   <Galeria collections={galleryCollections} layout={galleryLayout} variant="hero" />
 </Section>
 
 <style>
-  .info-section {
-    padding-bottom: var(--space-md);
+  .chronicle-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(2.25rem, 4vw, 3rem) var(--section-padding-x) clamp(3.5rem, 6vw, 5rem);
   }
 
-  .two-column-layout {
+  .chronicle-container {
+    width: 100%;
+    max-width: min(90vw, 1140px);
+    margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-md);
+    gap: clamp(1.75rem, 4vw, 3.5rem);
     align-items: start;
   }
 
-  .main-content {
-    max-width: 860px;
-    margin: 0 auto;
+  @media (min-width: 960px) {
+    .chronicle-container {
+      grid-template-columns: minmax(300px, 1fr) minmax(420px, 1.45fr);
+      gap: clamp(2.5rem, 5vw, 4.5rem);
+    }
   }
 
-  .main-content h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    line-height: 1.1;
-    margin-bottom: var(--space-sm);
-    color: var(--color-primary);
-    text-shadow: 0 0 30px rgba(255, 107, 0, 0.4);
-  }
-
-  .subtitle {
-    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-    font-weight: bold;
-    margin-bottom: var(--space-md);
-    opacity: 0.9;
-  }
-
-  .history-text {
+  /* Columna Izquierda */
+  .chronicle-anchor {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    align-items: flex-start;
+    text-align: left;
   }
 
-  .history-text p {
-    font-size: clamp(1rem, 2.2vw, 1.1rem);
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.85);
+  .chronicle-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.75rem;
   }
 
-  @media (min-width: 1024px) {
-    .two-column-layout {
-      grid-template-columns: 1fr;
-    }
+  .kicker-line {
+    width: 22px;
+    height: 2px;
+    background: var(--color-primary);
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.6);
+  }
+
+  .kicker-text {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color-primary);
+  }
+
+  .chronicle-title {
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    line-height: 1.12;
+    font-weight: 900;
+    margin: 0 0 0.65rem 0;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .chronicle-subtitle {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0 0 1.5rem 0;
+    font-weight: 400;
+  }
+
+  .chronicle-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    padding-top: 0.5rem;
+    width: 100%;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 0.85rem;
+  }
+
+  .meta-label {
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 600;
+  }
+
+  .meta-value {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+  }
+
+  .meta-dot {
+    color: rgba(255, 107, 0, 0.7);
+    font-weight: 800;
+  }
+
+  /* Columna Derecha */
+  .chronicle-narrative {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    text-align: left;
+  }
+
+  .narrative-lead {
+    font-size: clamp(1.08rem, 2.2vw, 1.22rem);
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+  }
+
+  .narrative-body {
+    font-size: clamp(0.98rem, 1.9vw, 1.05rem);
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* Resaltado sutil en nombres históricos (inline sin boxes ni bordes) */
+  :global(.chronicle-name) {
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    text-shadow: 0 0 10px rgba(255, 107, 0, 0.25);
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+
+  :global(.chronicle-name:hover) {
+    color: var(--color-primary);
+    text-shadow: 0 0 16px rgba(255, 107, 0, 0.7);
   }
 </style>
 
@@ -88,31 +234,41 @@ const networkTitle = siteConfig.server?.networkName
   window.addEventListener("DOMContentLoaded", () => {
     const gs = window.gsap;
     const ST = window.ScrollTrigger;
-    if (!gs) return;
+    if (!gs || !ST) return;
 
-    const reveals = document.querySelectorAll(
-      ".main-content > *, .section-title",
-    );
+    try {
+      gs.registerPlugin(ST);
+    } catch {}
 
-    if (reveals.length && ST && gs.registerPlugin) {
-      try {
-        gs.registerPlugin(ST);
-      } catch {}
+    const anchor = document.querySelector(".chronicle-anchor");
+    const paragraphs = document.querySelectorAll(".chronicle-narrative p");
 
-      gs.set(reveals, { opacity: 0, y: 30 });
+    if (anchor) {
+      gs.from(anchor, {
+        opacity: 0,
+        y: 24,
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: anchor,
+          start: "top 88%",
+          once: true,
+        },
+      });
+    }
 
-      reveals.forEach((el) => {
-        gs.to(el, {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 90%",
-            once: true,
-          },
-        });
+    if (paragraphs.length) {
+      gs.from(paragraphs, {
+        opacity: 0,
+        y: 20,
+        duration: 0.7,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: paragraphs[0],
+          start: "top 88%",
+          once: true,
+        },
       });
     }
   });
