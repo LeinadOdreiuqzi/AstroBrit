@@ -5,6 +5,7 @@ import { galleryLayout, galleryCollections } from "../data/galleryData.ts";
 import { siteConfig } from "../data/siteConfig.ts";
 import { historyData } from "../data/historyData.ts";
 import bannerSvg from "../assets/minecraft-banner-britannia.svg";
+import writableBookSvg from "../assets/WritableBook.svg";
 
 const networkTitle = siteConfig.server?.networkName
   ? `Britannia en ${siteConfig.server.networkName}`
@@ -22,7 +23,7 @@ const highlightHistoricalNames = (text: string) => {
     const regex = new RegExp(`\\b${name}\\b`, "g");
     output = output.replace(
       regex,
-      `<span class="chronicle-name">${name}</span>`
+      `<span class="chronicle-name">${name}</span>`,
     );
   });
   return output;
@@ -43,15 +44,9 @@ const highlightHistoricalNames = (text: string) => {
           {historyData.title}
         </h1>
 
-        <!-- Estandarte Oficial alineado al nivel del título Bienvenido (sin etiqueta de texto) -->
-        <button
-          type="button"
-          id="btn-britannia-banner"
-          class="banner-button"
-          aria-label="Estandarte Oficial de Britannia"
-          title="Estandarte Oficial de Britannia"
-        >
-          <div class="banner-hanger" aria-hidden="true"></div>
+        <!-- Estandarte Oficial estático y decorativo alineado con el título -->
+        <div class="banner-display" aria-hidden="true">
+          <div class="banner-hanger"></div>
           <img
             src={bannerSvg.src}
             alt="Estandarte de Britannia"
@@ -60,7 +55,7 @@ const highlightHistoricalNames = (text: string) => {
             height="88"
             loading="eager"
           />
-        </button>
+        </div>
       </div>
 
       <p class="chronicle-subtitle">
@@ -68,49 +63,79 @@ const highlightHistoricalNames = (text: string) => {
       </p>
 
       <div class="chronicle-meta">
-        {historyData.foundationYear && (
-          <div class="meta-item">
-            <span class="meta-label">Fundación</span>
-            <span class="meta-value">{historyData.foundationYear}</span>
-          </div>
-        )}
-        {historyData.foundationYear && historyData.founders && historyData.founders.length > 0 && (
-          <span class="meta-dot">·</span>
-        )}
-        {historyData.founders && historyData.founders.length > 0 && (
-          <div class="meta-item">
-            <span class="meta-label">Fundadores</span>
-            <span class="meta-value">{historyData.founders.join(" & ")}</span>
-          </div>
-        )}
+        {
+          historyData.foundationYear && (
+            <div class="meta-item">
+              <span class="meta-label">Fundación</span>
+              <span class="meta-value">{historyData.foundationYear}</span>
+            </div>
+          )
+        }
+        {
+          historyData.foundationYear &&
+            historyData.founders &&
+            historyData.founders.length > 0 && <span class="meta-dot">·</span>
+        }
+        {
+          historyData.founders && historyData.founders.length > 0 && (
+            <div class="meta-item">
+              <span class="meta-label">Fundadores</span>
+              <span class="meta-value">{historyData.founders.join(" & ")}</span>
+            </div>
+          )
+        }
       </div>
+      <!-- Botón editorial de Crónicas de la ciudad (sin card, integrado orgánicamente) -->
+      <button
+        type="button"
+        id="btn-chronicles-book"
+        class="chronicle-book-btn"
+        aria-label="Crónicas de la ciudad"
+      >
+        <div class="book-icon-wrapper" aria-hidden="true">
+          <img
+            src={writableBookSvg.src}
+            alt=""
+            class="book-pixel-icon"
+            width="28"
+            height="28"
+            loading="lazy"
+          />
+        </div>
+        <div class="book-btn-text">
+          <span class="book-btn-title">Crónicas de la ciudad</span>
+        </div>
+      </button>
     </div>
 
     <!-- Columna Derecha: Relato narrativo continuo -->
     <div class="chronicle-narrative">
-      {historyData.paragraphs.map((paragraph, index) => (
-        <p
-          class={index === 0 ? "narrative-lead" : "narrative-body"}
-          set:html={highlightHistoricalNames(paragraph)}
-        />
-      ))}
+      {
+        historyData.paragraphs.map((paragraph, index) => (
+          <p
+            class={index === 0 ? "narrative-lead" : "narrative-body"}
+            set:html={highlightHistoricalNames(paragraph)}
+          />
+        ))
+      }
     </div>
   </div>
 </section>
 
-<Section
-  id="galeria"
-  title={networkTitle}
-  divider={false}
->
-  <Galeria collections={galleryCollections} layout={galleryLayout} variant="hero" />
+<Section id="galeria" title={networkTitle} divider={false}>
+  <Galeria
+    collections={galleryCollections}
+    layout={galleryLayout}
+    variant="hero"
+  />
 </Section>
 
 <style>
   .chronicle-section {
     position: relative;
     width: 100%;
-    padding: clamp(2.25rem, 4vw, 3rem) var(--section-padding-x) clamp(3.5rem, 6vw, 5rem);
+    padding: clamp(2.25rem, 4vw, 3rem) var(--section-padding-x)
+      clamp(3.5rem, 6vw, 5rem);
   }
 
   .chronicle-container {
@@ -181,20 +206,17 @@ const highlightHistoricalNames = (text: string) => {
     flex: 1;
   }
 
-  /* Estandarte de Britannia (Alineado con el Bienvenido, estático) */
-  .banner-button {
-    background: transparent;
-    border: none;
-    padding: 0;
-    cursor: pointer;
+  /* Estandarte de Britannia (Estático y decorativo) */
+  .banner-display {
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
-    outline: none;
     flex-shrink: 0;
     margin-top: 4px;
     user-select: none;
+    pointer-events: none;
+    cursor: default;
   }
 
   .banner-hanger {
@@ -205,6 +227,7 @@ const highlightHistoricalNames = (text: string) => {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     position: relative;
     z-index: 2;
+    pointer-events: none;
   }
 
   .banner-graphic {
@@ -216,15 +239,8 @@ const highlightHistoricalNames = (text: string) => {
     image-rendering: crisp-edges;
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
     user-select: none;
+    pointer-events: none;
   }
-
-  .banner-button:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
-    outline-offset: 4px;
-    border-radius: 2px;
-  }
-
-
 
   .chronicle-subtitle {
     font-size: clamp(1.05rem, 2vw, 1.25rem);
@@ -268,6 +284,87 @@ const highlightHistoricalNames = (text: string) => {
     font-weight: 800;
   }
 
+  /* Botón de Crónicas de la ciudad (Orgánico, sin encuadres ni cards) */
+  .chronicle-book-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 1.65rem;
+    padding: 6px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    outline: none;
+    user-select: none;
+  }
+
+  .book-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    position: relative;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+  }
+
+  .book-pixel-icon {
+    display: block;
+    width: 28px;
+    height: 28px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .book-btn-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .book-btn-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #ffffff;
+    transition: color 0.22s ease, text-shadow 0.22s ease;
+  }
+
+  .book-btn-desc {
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.15px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.22s ease;
+  }
+
+  /* Hover sutil y elegante sin bordes ni recuadros */
+  .chronicle-book-btn:hover .book-icon-wrapper {
+    transform: translateY(-2px) scale(1.08);
+    filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.45));
+  }
+
+  .chronicle-book-btn:hover .book-btn-title {
+    color: var(--color-primary);
+    text-shadow: 0 0 12px rgba(255, 107, 0, 0.35);
+  }
+
+  .chronicle-book-btn:hover .book-btn-desc {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .chronicle-book-btn:focus-visible {
+    outline: 2px solid rgba(255, 107, 0, 0.6);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
   /* Columna Derecha */
   .chronicle-narrative {
     display: flex;
@@ -299,7 +396,9 @@ const highlightHistoricalNames = (text: string) => {
     font-weight: 600;
     letter-spacing: 0.2px;
     text-shadow: 0 0 10px rgba(255, 107, 0, 0.25);
-    transition: color 0.2s ease, text-shadow 0.2s ease;
+    transition:
+      color 0.2s ease,
+      text-shadow 0.2s ease;
   }
 
   :global(.chronicle-name:hover) {
@@ -350,16 +449,16 @@ const highlightHistoricalNames = (text: string) => {
       });
     }
 
-    // Manejador del botón del estandarte (preparado para futuras implementaciones)
-    const bannerBtn = document.getElementById("btn-britannia-banner");
-    if (bannerBtn) {
-      bannerBtn.addEventListener("click", () => {
+    // Manejador del botón Crónicas de la ciudad (preparado para futura interacción / lectura)
+    const bookBtn = document.getElementById("btn-chronicles-book");
+    if (bookBtn) {
+      bookBtn.addEventListener("click", () => {
         window.dispatchEvent(
-          new CustomEvent("britannia:banner-click", {
-            detail: { id: "britannia-banner", timestamp: Date.now() },
+          new CustomEvent("britannia:chronicles-open", {
+            detail: { timestamp: Date.now() },
           })
         );
-        console.log("Estandarte de Britannia activado (listo para futura implementación)");
+        console.log("Crónicas de la ciudad activado (listo para modal/lector)");
       });
     }
   });
