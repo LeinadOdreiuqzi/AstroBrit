@@ -1,0 +1,1179 @@
+---
+import { chroniclesData, type ChroniclePoint } from "../data/chroniclesData.ts";
+import writableBookSvg from "../assets/WritableBook.svg";
+
+interface Props {
+  points?: ChroniclePoint[];
+}
+
+const { points = chroniclesData } = Astro.props;
+---
+
+<div
+  id="chronicles-overlay"
+  class="chronicles-lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Crónicas de la ciudad"
+  hidden
+  aria-hidden="true"
+  data-points={JSON.stringify(points)}
+>
+  <!-- Barra superior con indicador contextual y botón dinámico arriba a la derecha -->
+  <div class="chronicles-topbar">
+    <div class="chronicles-context" id="chronicles-context-label">
+      <img
+        src={writableBookSvg.src}
+        alt=""
+        class="context-book-icon"
+        width="20"
+        height="20"
+      />
+      <span class="context-kicker" id="chronicles-status-text">
+        Línea del Tiempo
+      </span>
+    </div>
+
+    <button
+      type="button"
+      id="chronicles-close-btn"
+      class="chronicles-close"
+      aria-label="Cerrar (ESC)"
+      title="Cerrar (ESC)"
+    >
+      <span class="close-icon-close" id="icon-close-modal" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </span>
+      <span class="close-icon-back" id="icon-back-timeline" aria-hidden="true" style="display: none;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </span>
+    </button>
+  </div>
+
+  <!-- VISTA 1: Lienzo principal con los puntos interactuables del Timeline -->
+  <div id="chronicles-overview" class="chronicles-overview">
+    <header class="overview-header">
+      <h2 class="overview-title">Archivo Histórico</h2>
+    </header>
+
+    <div id="chronicles-track-viewport" class="timeline-viewport">
+      <div class="timeline-track">
+        <!-- Eje luminoso central -->
+        <div class="timeline-axis" aria-hidden="true"></div>
+
+        {
+          points.map((point, index) => {
+            const positionClass = index % 2 === 0 ? "node--above" : "node--below";
+            return (
+              <button
+                type="button"
+                class={`timeline-node ${positionClass}`}
+                data-point-index={index}
+                aria-label={`Abrir ${point.year}: ${point.title}`}
+              >
+                <div class="node-content">
+                  {point.era && <span class="node-era">{point.era}</span>}
+                  <span class="node-year">{point.year}</span>
+                  <h3 class="node-title">{point.title}</h3>
+                  {point.summary && <p class="node-summary">{point.summary}</p>}
+                </div>
+
+                <div class="node-connector" aria-hidden="true">
+                  <span class="node-stem" />
+                  <span class="node-dot">
+                    <span class="node-dot-core" />
+                  </span>
+                </div>
+              </button>
+            );
+          })
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA 2: Lienzo limpio para mostrar todo el contenido del punto seleccionado -->
+  <div id="chronicles-detail" class="chronicles-detail" hidden aria-hidden="true">
+    <div class="detail-scroll-container" id="chronicles-detail-scroll">
+      <div class="detail-watermark" id="detail-watermark" aria-hidden="true"></div>
+
+      <div class="detail-layout">
+        <!-- Columna izquierda del punto: Identidad y metadatos -->
+        <aside class="detail-anchor">
+          <div class="detail-kicker" id="detail-kicker-wrapper" style="display: none;">
+            <span class="kicker-line"></span>
+            <span class="kicker-text" id="detail-era"></span>
+          </div>
+
+          <div class="detail-year-badge" id="detail-year"></div>
+          <h2 class="detail-title" id="detail-title"></h2>
+          <p class="detail-subtitle" id="detail-subtitle"></p>
+
+          <div class="detail-highlights" id="detail-highlights"></div>
+
+          <span class="detail-esc-hint">
+            Presiona <kbd>ESC</kbd> o <kbd>←</kbd> para volver
+          </span>
+        </aside>
+
+        <!-- Columna derecha del punto: Relato completo e imágenes opcionales -->
+        <article class="detail-narrative">
+          <div class="detail-paragraphs" id="detail-paragraphs"></div>
+          <div class="detail-media-grid" id="detail-media"></div>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Contenedor de instancia pantalla completa (replica la mecánica de LightboxIsland) */
+  .chronicles-lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    background: radial-gradient(
+      1200px 80% at 50% 40%,
+      rgba(255, 107, 0, 0.08) 0%,
+      rgba(18, 9, 4, 0.96) 55%,
+      rgba(0, 0, 0, 0.99) 100%
+    );
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #ffffff;
+  }
+
+  .chronicles-lightbox[hidden] {
+    display: none;
+  }
+
+  /* Barra superior con botón X idéntico a las galerías */
+  .chronicles-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px 0 32px;
+    flex-shrink: 0;
+    z-index: 20;
+  }
+
+  .chronicles-context {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.85;
+  }
+
+  .context-book-icon {
+    width: 20px;
+    height: 20px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .context-kicker {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+  }
+
+  .chronicles-close {
+    appearance: none;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  }
+
+  .chronicles-close .close-icon-close,
+  .chronicles-close .close-icon-back {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .chronicles-close svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  .chronicles-close:hover {
+    background: rgba(255, 107, 0, 0.35);
+    transform: scale(1.06);
+  }
+
+  .chronicles-close.is-back-mode:hover svg {
+    transform: translateX(-2.5px);
+  }
+
+  .chronicles-close:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  /* =========================================================================
+     VISTA 1: MAPA DEL TIMELINE (OVERVIEW)
+     ========================================================================= */
+  .chronicles-overview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .chronicles-overview[hidden] {
+    display: none;
+  }
+
+  .overview-header {
+    padding: clamp(1rem, 2.5vw, 2.2rem) clamp(2rem, 5vw, 4.5rem) 0;
+    flex-shrink: 0;
+  }
+
+  .detail-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.45rem;
+  }
+
+  .kicker-line {
+    width: 22px;
+    height: 2px;
+    background: var(--color-primary);
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.6);
+  }
+
+  .kicker-text {
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color-primary);
+  }
+
+  .overview-title {
+    font-size: clamp(1.85rem, 3.4vw, 2.8rem);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: #ffffff;
+  }
+
+  .overview-hint {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.48);
+    margin: 0;
+  }
+
+  /* Pista horizontal del Timeline */
+  .timeline-viewport {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(3rem, 8vw, 7rem);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 107, 0, 0.35) transparent;
+  }
+
+  .timeline-viewport::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .timeline-viewport::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 0, 0.35);
+    border-radius: 4px;
+  }
+
+  .timeline-track {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(3.5rem, 6vw, 6.5rem);
+    min-width: max-content;
+    height: 440px;
+    padding: 0 2rem;
+  }
+
+  .timeline-axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    transform: translateY(-50%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 107, 0, 0.5) 6%,
+      rgba(255, 255, 255, 0.22) 50%,
+      rgba(255, 107, 0, 0.5) 94%,
+      transparent 100%
+    );
+    box-shadow: 0 0 16px rgba(255, 107, 0, 0.25);
+    pointer-events: none;
+  }
+
+  /* Nodos interactivos (Sin cajas ni bordes, alineados matemáticamente al eje 50%) */
+  .timeline-node {
+    position: relative;
+    width: 260px;
+    height: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+  }
+
+  .node-content {
+    position: absolute;
+    left: 0;
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .timeline-node.node--above .node-content {
+    bottom: calc(50% + 50px);
+  }
+
+  .timeline-node.node--below .node-content {
+    top: calc(50% + 50px);
+  }
+
+  .timeline-node.node--above:hover .node-content {
+    transform: translateY(-4px);
+  }
+
+  .timeline-node.node--below:hover .node-content {
+    transform: translateY(4px);
+  }
+
+  .node-era {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 700;
+    transition: color 0.25s ease;
+  }
+
+  .node-year {
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+    text-shadow: 0 0 18px rgba(255, 107, 0, 0.3);
+    transition: transform 0.25s ease, text-shadow 0.25s ease;
+  }
+
+  .node-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 2px 0 0 0;
+    line-height: 1.3;
+    transition: color 0.25s ease;
+  }
+
+  .node-summary {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 2px 0 0 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.25s ease;
+  }
+
+  /* Conector al eje central (Anclado al 50% exacto de la pista) */
+  .node-connector {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 18px;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .node-stem {
+    position: absolute;
+    left: 8.5px;
+    width: 1px;
+    height: 36px;
+    transition: height 0.25s ease, background 0.25s ease;
+  }
+
+  .timeline-node.node--above .node-stem {
+    bottom: 9px;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 107, 0, 0.8)
+    );
+  }
+
+  .timeline-node.node--below .node-stem {
+    top: 9px;
+    background: linear-gradient(
+      to top,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 107, 0, 0.8)
+    );
+  }
+
+  .node-dot {
+    position: absolute;
+    left: 0;
+    top: -9px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255, 107, 0, 0.18);
+    display: grid;
+    place-items: center;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background 0.28s ease, box-shadow 0.28s ease;
+  }
+
+  .node-dot-core {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 10px var(--color-primary);
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+
+  /* Hover interactivo del punto */
+  .timeline-node:hover .node-dot,
+  .timeline-node:focus-visible .node-dot {
+    transform: scale(1.35);
+    background: rgba(255, 107, 0, 0.35);
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.75);
+  }
+
+  .timeline-node:hover .node-dot-core,
+  .timeline-node:focus-visible .node-dot-core {
+    background: var(--color-primary);
+    transform: scale(1.15);
+  }
+
+  .timeline-node:hover .node-year,
+  .timeline-node:focus-visible .node-year {
+    text-shadow: 0 0 24px rgba(255, 107, 0, 0.85);
+  }
+
+  .timeline-node:hover .node-title,
+  .timeline-node:focus-visible .node-title {
+    color: var(--color-primary);
+  }
+
+  .timeline-node:hover .node-summary,
+  .timeline-node:focus-visible .node-summary {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .timeline-node:hover .node-era,
+  .timeline-node:focus-visible .node-era {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  /* =========================================================================
+     VISTA 2: CONTENIDO DEL PUNTO SELECCIONADO (DETAIL VIEW)
+     ========================================================================= */
+  .chronicles-detail {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chronicles-detail[hidden] {
+    display: none;
+  }
+
+  .detail-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(2rem, 6vw, 5rem) clamp(3rem, 6vw, 5rem);
+    position: relative;
+  }
+
+  /* Marca de agua tipográfica gigante de fondo (sin cajas) */
+  .detail-watermark {
+    position: fixed;
+    right: 5vw;
+    bottom: 2vh;
+    font-size: clamp(6rem, 18vw, 15rem);
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.025);
+    letter-spacing: -4px;
+    line-height: 0.85;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .detail-layout {
+    position: relative;
+    z-index: 2;
+    max-width: min(92vw, 1140px);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .detail-layout {
+      grid-template-columns: minmax(280px, 0.95fr) minmax(420px, 1.45fr);
+      gap: clamp(2.5rem, 5vw, 4.5rem);
+    }
+  }
+
+  .detail-anchor {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-year-badge {
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 900;
+    color: var(--color-primary);
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 0.4rem;
+    text-shadow: 0 0 28px rgba(255, 107, 0, 0.35);
+  }
+
+  .detail-title {
+    font-size: clamp(1.6rem, 3vw, 2.35rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .detail-subtitle {
+    font-size: clamp(1rem, 1.8vw, 1.15rem);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.62);
+    margin: 0 0 1.5rem 0;
+  }
+
+  :global(.detail-highlights) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  :global(.detail-meta-item) {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 0.85rem;
+  }
+
+  :global(.detail-meta-label) {
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 600;
+  }
+
+  :global(.detail-meta-value) {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+  }
+
+  :global(.detail-meta-dot) {
+    color: rgba(255, 107, 0, 0.7);
+    font-weight: 800;
+  }
+
+  .detail-esc-hint {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.38);
+    letter-spacing: 0.3px;
+  }
+
+  .detail-esc-hint kbd {
+    font-family: inherit;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.75);
+    padding: 0 3px;
+  }
+
+  .detail-narrative {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  :global(.detail-paragraphs) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  :global(.detail-p-lead) {
+    font-size: clamp(1.08rem, 2.1vw, 1.22rem);
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+  }
+
+  :global(.detail-p-body) {
+    font-size: clamp(0.98rem, 1.8vw, 1.05rem);
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+  }
+
+  :global(.detail-media-grid) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  :global(.detail-media-grid:empty) {
+    display: none;
+  }
+
+  :global(.detail-media-figure) {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  :global(.detail-media-figure img) {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+  }
+
+  :global(.detail-media-caption) {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Adaptación móvil para la pista del timeline */
+  @media (max-width: 768px) {
+    .timeline-viewport {
+      overflow-x: hidden;
+      overflow-y: auto;
+      align-items: flex-start;
+      padding: 1.5rem 2rem 3rem;
+    }
+
+    .timeline-track {
+      flex-direction: column;
+      align-items: flex-start;
+      height: auto;
+      gap: 2.25rem;
+      padding: 1rem 0 1rem 1.5rem;
+      min-width: 100%;
+    }
+
+    .timeline-axis {
+      top: 0;
+      bottom: 0;
+      left: 8px;
+      right: auto;
+      width: 1px;
+      height: 100%;
+      transform: none;
+      background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255, 107, 0, 0.5) 8%,
+        rgba(255, 255, 255, 0.22) 50%,
+        rgba(255, 107, 0, 0.5) 92%,
+        transparent 100%
+      );
+    }
+
+    .timeline-node,
+    .timeline-node.node--above,
+    .timeline-node.node--below {
+      height: auto;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: flex-start;
+      width: 100%;
+      gap: 1rem;
+    }
+
+    .timeline-node.node--above .node-content,
+    .timeline-node.node--below .node-content {
+      position: static;
+      width: 100%;
+    }
+
+    .node-connector {
+      position: relative;
+      top: auto;
+      left: auto;
+      height: auto;
+      margin-left: -1.5rem;
+      margin-top: 0.35rem;
+    }
+
+    .node-dot {
+      position: static;
+    }
+
+    .node-stem {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import type { ChroniclePoint } from "../data/chroniclesData.ts";
+
+  function initChroniclesModal() {
+    const overlay = document.getElementById("chronicles-overlay");
+    if (!overlay || overlay.dataset.initialized === "true") return;
+    overlay.dataset.initialized = "true";
+
+    // Montar directamente en document.body (igual que global-lightbox) para que ningún transform padre afecte position:fixed
+    if (overlay.parentElement !== document.body) {
+      document.body.appendChild(overlay);
+    }
+
+    const closeBtn = document.getElementById("chronicles-close-btn");
+    const iconCloseModal = document.getElementById("icon-close-modal");
+    const iconBackTimeline = document.getElementById("icon-back-timeline");
+    const statusText = document.getElementById("chronicles-status-text");
+    const overviewEl = document.getElementById("chronicles-overview");
+    const detailEl = document.getElementById("chronicles-detail");
+    const trackViewport = document.getElementById("chronicles-track-viewport");
+    const nodes = Array.from(
+      overlay.querySelectorAll<HTMLButtonElement>(".timeline-node")
+    );
+
+    // Elementos de la vista de detalle (Nivel 2)
+    const detailWatermark = document.getElementById("detail-watermark");
+    const detailEra = document.getElementById("detail-era");
+    const detailYear = document.getElementById("detail-year");
+    const detailTitle = document.getElementById("detail-title");
+    const detailSubtitle = document.getElementById("detail-subtitle");
+    const detailHighlights = document.getElementById("detail-highlights");
+    const detailParagraphs = document.getElementById("detail-paragraphs");
+    const detailMedia = document.getElementById("detail-media");
+    const detailScroll = document.getElementById("chronicles-detail-scroll");
+
+    let pointsData: ChroniclePoint[] = [];
+    try {
+      pointsData = JSON.parse(overlay.dataset.points || "[]");
+    } catch {
+      pointsData = [];
+    }
+
+    let isOpen = false;
+    let activePointIndex: number | null = null;
+    let prevFocus: HTMLElement | null = null;
+
+    const getGsap = () => (window as any).gsap;
+
+    const setButtonMode = (isBack: boolean) => {
+      if (isBack) {
+        closeBtn?.classList.add("is-back-mode");
+        closeBtn?.setAttribute("aria-label", "Volver a la línea del tiempo (ESC)");
+        closeBtn?.setAttribute("title", "Volver (ESC)");
+        if (iconCloseModal) iconCloseModal.style.display = "none";
+        if (iconBackTimeline) iconBackTimeline.style.display = "grid";
+      } else {
+        closeBtn?.classList.remove("is-back-mode");
+        closeBtn?.setAttribute("aria-label", "Cerrar archivo histórico (ESC)");
+        closeBtn?.setAttribute("title", "Cerrar (ESC)");
+        if (iconCloseModal) iconCloseModal.style.display = "grid";
+        if (iconBackTimeline) iconBackTimeline.style.display = "none";
+      }
+    };
+
+    const killActiveTweens = () => {
+      const g = getGsap();
+      if (g) {
+        g.killTweensOf([overlay, overviewEl, detailEl, ...nodes]);
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // ABRIR LA INSTANCIA COMPLETA ENCIMA DE LA WEB (Nivel 1: Timeline)
+    // -----------------------------------------------------------------------
+    const openChronicles = () => {
+      if (isOpen) return;
+      killActiveTweens();
+      isOpen = true;
+      activePointIndex = null;
+      prevFocus = document.activeElement as HTMLElement | null;
+
+      // Asegurar que empiece en la vista general del timeline
+      if (overviewEl) {
+        overviewEl.removeAttribute("hidden");
+        overviewEl.setAttribute("aria-hidden", "false");
+      }
+      if (detailEl) {
+        detailEl.setAttribute("hidden", "");
+        detailEl.setAttribute("aria-hidden", "true");
+      }
+      if (statusText) {
+        statusText.textContent = "Línea del Tiempo";
+      }
+      setButtonMode(false);
+
+      overlay.removeAttribute("hidden");
+      overlay.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("lb-open");
+      document.body.classList.add("lb-open");
+
+      document.addEventListener("keydown", onKeydown);
+      closeBtn?.focus();
+
+      const g = getGsap();
+      if (g) {
+        if (overviewEl) g.set(overviewEl, { clearProps: "opacity,visibility,transform" });
+        g.set(overlay, { autoAlpha: 0, y: 14 });
+        g.to(overlay, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.42,
+          ease: "power3.out",
+        });
+
+        if (nodes.length) {
+          g.fromTo(
+            nodes,
+            { autoAlpha: 0 },
+            {
+              autoAlpha: 1,
+              duration: 0.45,
+              stagger: 0.06,
+              ease: "power2.out",
+              delay: 0.08,
+            }
+          );
+        }
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // CERRAR LA INSTANCIA COMPLETA Y VOLVER A LA WEB
+    // -----------------------------------------------------------------------
+    const closeChronicles = () => {
+      if (!isOpen) return;
+      killActiveTweens();
+      isOpen = false;
+      activePointIndex = null;
+      document.removeEventListener("keydown", onKeydown);
+
+      const finalize = () => {
+        overlay.setAttribute("hidden", "");
+        overlay.setAttribute("aria-hidden", "true");
+        document.documentElement.classList.remove("lb-open");
+        document.body.classList.remove("lb-open");
+        setButtonMode(false);
+        if (prevFocus && typeof prevFocus.focus === "function") {
+          try {
+            prevFocus.focus();
+          } catch {}
+        }
+      };
+
+      const g = getGsap();
+      if (g) {
+        g.to(overlay, {
+          autoAlpha: 0,
+          y: 16,
+          duration: 0.25,
+          ease: "power2.in",
+          onComplete: () => {
+            finalize();
+            g.set(overlay, { clearProps: "opacity,visibility,transform" });
+          },
+        });
+      } else {
+        finalize();
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // LIMPIAR EL CANVAS Y MOSTRAR EL CONTENIDO DE UN PUNTO (Nivel 1 -> Nivel 2)
+    // -----------------------------------------------------------------------
+    const openPointDetail = (index: number) => {
+      const point = pointsData[index];
+      if (!point) return;
+      killActiveTweens();
+      activePointIndex = index;
+
+      // Rellenar el contenido del punto seleccionado
+      if (detailWatermark) detailWatermark.textContent = point.year;
+      const kickerWrapper = document.getElementById("detail-kicker-wrapper");
+      if (kickerWrapper) {
+        if (point.era) {
+          kickerWrapper.style.display = "inline-flex";
+          if (detailEra) detailEra.textContent = point.era;
+        } else {
+          kickerWrapper.style.display = "none";
+        }
+      }
+      if (detailYear) detailYear.textContent = point.year;
+      if (detailTitle) detailTitle.textContent = point.title;
+      if (detailSubtitle) {
+        detailSubtitle.textContent = point.subtitle || "";
+        detailSubtitle.style.display = point.subtitle ? "block" : "none";
+      }
+
+      if (detailHighlights) {
+        const hl = point.highlights || [];
+        detailHighlights.innerHTML = hl
+          .map((item, i) => {
+            const dot =
+              i < hl.length - 1
+                ? `<span class="detail-meta-dot">·</span>`
+                : "";
+            return `<div class="detail-meta-item"><span class="detail-meta-label">${item.label}</span><span class="detail-meta-value">${item.value}</span></div>${dot}`;
+          })
+          .join("");
+      }
+
+      if (detailParagraphs) {
+        detailParagraphs.innerHTML = (point.paragraphs || [])
+          .map(
+            (p, i) =>
+              `<p class="${i === 0 ? "detail-p-lead" : "detail-p-body"}">${p}</p>`
+          )
+          .join("");
+      }
+
+      if (detailMedia) {
+        detailMedia.innerHTML = (point.media || [])
+          .map(
+            (m) =>
+              `<figure class="detail-media-figure"><img src="${m.src}" alt="${m.alt}" loading="lazy" />${
+                m.caption
+                  ? `<figcaption class="detail-media-caption">${m.caption}</figcaption>`
+                  : ""
+              }</figure>`
+          )
+          .join("");
+      }
+
+      if (statusText) {
+        statusText.textContent = `${point.year} · ${point.title}`;
+      }
+      setButtonMode(true);
+
+      const g = getGsap();
+      if (g && overviewEl && detailEl) {
+        // 1. Limpiar el canvas ocultando suavemente el timeline
+        g.to(overviewEl, {
+          autoAlpha: 0,
+          scale: 0.98,
+          duration: 0.2,
+          ease: "power2.in",
+          onComplete: () => {
+            overviewEl.setAttribute("hidden", "");
+            overviewEl.setAttribute("aria-hidden", "true");
+            g.set(overviewEl, { clearProps: "opacity,visibility,transform" });
+
+            // 2. Mostrar el contenido del punto en el canvas limpio
+            detailEl.removeAttribute("hidden");
+            detailEl.setAttribute("aria-hidden", "false");
+            if (detailScroll) detailScroll.scrollTop = 0;
+
+            g.fromTo(
+              detailEl,
+              { autoAlpha: 0, y: 18 },
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.34,
+                ease: "power3.out",
+              }
+            );
+          },
+        });
+      } else {
+        overviewEl?.setAttribute("hidden", "");
+        detailEl?.removeAttribute("hidden");
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // VOLVER DEL CONTENIDO DEL PUNTO AL MAPA DEL TIMELINE (Nivel 2 -> Nivel 1)
+    // -----------------------------------------------------------------------
+    const closePointDetail = () => {
+      if (activePointIndex === null) return;
+      killActiveTweens();
+      const returnToIndex = activePointIndex;
+      activePointIndex = null;
+
+      if (statusText) {
+        statusText.textContent = "Línea del Tiempo";
+      }
+      setButtonMode(false);
+
+      const g = getGsap();
+      if (g && overviewEl && detailEl) {
+        g.to(detailEl, {
+          autoAlpha: 0,
+          y: 14,
+          duration: 0.2,
+          ease: "power2.in",
+          onComplete: () => {
+            detailEl.setAttribute("hidden", "");
+            detailEl.setAttribute("aria-hidden", "true");
+            g.set(detailEl, { clearProps: "opacity,visibility,transform" });
+
+            overviewEl.removeAttribute("hidden");
+            overviewEl.setAttribute("aria-hidden", "false");
+
+            g.fromTo(
+              overviewEl,
+              { autoAlpha: 0, scale: 0.98 },
+              {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.3,
+                ease: "power3.out",
+                onComplete: () => {
+                  nodes[returnToIndex]?.focus();
+                },
+              }
+            );
+          },
+        });
+      } else {
+        detailEl?.setAttribute("hidden", "");
+        overviewEl?.removeAttribute("hidden");
+        nodes[returnToIndex]?.focus();
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // MANEJADOR UNIFICADO PARA "ESC" Y LA "×" SUPERIOR DERECHA
+    // Si hay un punto abierto -> vuelve al timeline
+    // Si está en el timeline -> cierra la instancia completa
+    // -----------------------------------------------------------------------
+    const handleBackOrClose = () => {
+      if (activePointIndex !== null) {
+        closePointDetail();
+      } else {
+        closeChronicles();
+      }
+    };
+
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleBackOrClose();
+      }
+    };
+
+    // Eventos de clic
+    closeBtn?.addEventListener("click", handleBackOrClose);
+
+    nodes.forEach((node) => {
+      node.addEventListener("click", () => {
+        const idx = Number(node.dataset.pointIndex);
+        if (!Number.isNaN(idx)) {
+          openPointDetail(idx);
+        }
+      });
+    });
+
+    // Desplazamiento horizontal suave con rueda del ratón en el timeline (igual que Galería)
+    if (trackViewport) {
+      trackViewport.addEventListener(
+        "wheel",
+        (e: WheelEvent) => {
+          if (!isOpen || activePointIndex !== null) return;
+          if (window.innerWidth <= 768) return; // En móvil usa scroll vertical nativo
+          const delta =
+            Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+          if (delta === 0) return;
+          e.preventDefault();
+          const target = trackViewport.scrollLeft + delta;
+          const g = getGsap();
+          if (g) {
+            g.to(trackViewport, {
+              scrollLeft: target,
+              duration: 0.35,
+              ease: "power3.out",
+            });
+          } else {
+            trackViewport.scrollLeft = target;
+          }
+        },
+        { passive: false }
+      );
+    }
+
+    // Escuchar el evento disparado por el botón "Crónicas de la ciudad" y soporte directo de clic
+    window.addEventListener("britannia:chronicles-open", () => {
+      openChronicles();
+    });
+
+    const bookBtn = document.getElementById("btn-chronicles-book");
+    bookBtn?.addEventListener("click", () => {
+      openChronicles();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initChroniclesModal);
+  } else {
+    initChroniclesModal();
+  }
+</script>

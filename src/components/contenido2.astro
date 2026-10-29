@@ -6,6 +6,7 @@ import { siteConfig } from "../data/siteConfig.ts";
 import { historyData } from "../data/historyData.ts";
 import bannerSvg from "../assets/minecraft-banner-britannia.svg";
 import writableBookSvg from "../assets/WritableBook.svg";
+import ChronicleTimeline from "./ChronicleTimeline.astro";
 
 const networkTitle = siteConfig.server?.networkName
   ? `Britannia en ${siteConfig.server.networkName}`
@@ -121,6 +122,9 @@ const highlightHistoricalNames = (text: string) => {
     </div>
   </div>
 </section>
+
+<!-- Instancia inmersiva del Timeline de Crónicas de la Ciudad -->
+<ChronicleTimeline />
 
 <Section id="galeria" title={networkTitle} divider={false}>
   <Galeria
